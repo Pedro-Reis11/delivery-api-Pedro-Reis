@@ -31,4 +31,8 @@ public class Cliente {
     private LocalDateTime dataCadastro;
 
     private Boolean ativo = true;
+
+    public void inativar() {
+        this.ativo = false;
+    }
 }

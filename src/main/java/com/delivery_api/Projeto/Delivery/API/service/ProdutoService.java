@@ -91,4 +91,8 @@ public class ProdutoService {
             throw new IllegalArgumentException("Preço deve ser maior que zero");
         }
     }
+
+    public void inativar(Long id) {
+
+    }
 }
