@@ -1,0 +1,137 @@
+{
+  "info": {
+    "name": "Delivery API Tests - Dev Mode",
+    "description": "Testes para endpoints de Cliente, Produto, Pedido e Restaurante (sem autenticação, profile development)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    }
+  ],
+  "item": [
+    {
+      "name": "Cliente Tests",
+      "item": [
+        {
+          "name": "Cadastrar Cliente",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nome\": \"João Silva\", \"email\": \"joao@email.com\", \"telefone\": \"11999999999\"}"
+            },
+            "url": { "raw": "{{baseUrl}}/clientes", "host": ["{{baseUrl}}"], "path": ["clientes"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 201\", function () { pm.response.to.have.status(201); });",
+                  "pm.test(\"Response has id\", function () { var jsonData = pm.response.json(); pm.expect(jsonData.id).to.be.a('number'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Listar Clientes Ativos",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/clientes", "host": ["{{baseUrl}}"], "path": ["clientes"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response is array\", function () { var jsonData = pm.response.json(); pm.expect(jsonData).to.be.an('array'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Buscar Cliente por ID",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/clientes/1", "host": ["{{baseUrl}}"], "path": ["clientes","1"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 200 or 404\", function () { pm.expect(pm.response.code).to.be.oneOf([200, 404]); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Produto Tests",
+      "item": [
+        {
+          "name": "Cadastrar Produto",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\"nome\":\"Pizza Margherita\",\"preco\":25.00}" },
+            "url": { "raw": "{{baseUrl}}/produtos/restaurante/1", "host":["{{baseUrl}}"], "path":["produtos","restaurante","1"] }
+          },
+          "event": [
+            { "listen": "test", "script": { "exec":["pm.test(\"Status is 201\", function () { pm.response.to.have.status(201); });"] } }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Pedido Tests",
+      "item": [
+        {
+          "name": "Criar Pedido",
+          "request": {
+            "method": "POST",
+            "header": [ { "key":"Content-Type", "value":"application/json" } ],
+            "body": { "mode":"raw", "raw":"{\"cliente\":{\"id\":1},\"produtos\":[{\"id\":1}],\"enderecoEntrega\":\"Rua A, 123\"}" },
+            "url": { "raw":"{{baseUrl}}/pedidos", "host":["{{baseUrl}}"], "path":["pedidos"] }
+          },
+          "event":[ { "listen":"test", "script": { "exec":["pm.test(\"Status is 201\", function () { pm.response.to.have.status(201); });"] } } ]
+        }
+      ]
+    },
+    {
+      "name": "Restaurante Tests",
+      "item": [
+        {
+          "name": "Cadastrar Restaurante",
+          "request": {
+            "method": "POST",
+            "header": [ { "key":"Content-Type","value":"application/json" } ],
+            "body": { "mode":"raw", "raw":"{\"nome\":\"Pizzaria Bella\",\"categoria\":\"Italiana\",\"endereco\":\"Rua B, 456\",\"avaliacao\":4.5}" },
+            "url": { "raw":"{{baseUrl}}/restaurantes", "host":["{{baseUrl}}"], "path":["restaurantes"] }
+          },
+          "event":[ { "listen":"test", "script": { "exec":["pm.test(\"Status is 201\", function () { pm.response.to.have.status(201); });"] } } ]
+        },
+        {
+          "name": "Listar Restaurantes Ativos",
+          "request": { "method":"GET", "url": { "raw":"{{baseUrl}}/restaurantes", "host":["{{baseUrl}}"], "path":["restaurantes"] } },
+          "event":[ { "listen":"test", "script": { "exec":["pm.test(\"Status is 200\", function () { pm.response.to.have.status(200); });"] } } ]
+        },
+        {
+          "name": "Buscar Restaurante por ID",
+          "request": { "method":"GET", "url": { "raw":"{{baseUrl}}/restaurantes/1", "host":["{{baseUrl}}"], "path":["restaurantes","1"] } },
+          "event":[ { "listen":"test", "script": { "exec":["pm.test(\"Status is 200 or 404\", function () { pm.expect(pm.response.code).to.be.oneOf([200, 404]); });"] } } ]
+        }
+      ]
+    }
+  ]
+}
