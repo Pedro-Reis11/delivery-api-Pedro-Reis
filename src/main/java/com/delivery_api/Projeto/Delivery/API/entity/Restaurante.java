@@ -45,4 +45,8 @@ public class Restaurante {
     public void inativar() {
         this.ativo = false;
     }
+
+    public boolean isAtivo() {
+        return getAtivo() == true;
+    }
 }

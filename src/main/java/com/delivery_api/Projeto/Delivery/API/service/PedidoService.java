@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -25,7 +26,9 @@ public class PedidoService {
     public Pedido criar(Pedido pedido) {
         validarDadosPedido(pedido);
         calcularTotal(pedido);
-        pedido.setStatus(PedidoStatus.PENDENTE);  // Status inicial
+        pedido.setStatus(PedidoStatus.PENDENTE);
+        pedido.setNumeroPedido("PED-" + (pedidoRepository.count() + 1));
+        pedido.setDataPedido(LocalDateTime.now());
         return pedidoRepository.save(pedido);
     }
 
@@ -59,6 +62,7 @@ public class PedidoService {
 
     public Pedido atualizar(Long id, Pedido atualizado) {
         Pedido p = buscarPorId(id);
+        p.setObservacoes(atualizado.getObservacoes());
         p.setEnderecoEntrega(atualizado.getEnderecoEntrega());
         return pedidoRepository.save(p);
     }
@@ -72,16 +76,20 @@ public class PedidoService {
             throw new IllegalArgumentException("Cliente é obrigatório");
         }
 
+        if (pedido.getRestaurante() == null) {
+            throw new IllegalArgumentException("Restaurante é obrigatório");
+        }
+
+        if (!pedido.getRestaurante().isAtivo()) {
+            throw new IllegalArgumentException("Restaurante do pedido está inativo");
+        }
+
         for (Produto produto : pedido.getProdutos()) {
             Produto existente = produtoRepository.findById(produto.getId())
                     .orElseThrow(() -> new IllegalArgumentException("Produto não encontrado: " + produto.getId()));
 
-            if (!existente.getDisponivel()) {
+            if (!existente.isDisponivel()) {
                 throw new IllegalArgumentException("Produto indisponível: " + existente.getNome());
-            }
-
-            if (!existente.getRestaurante().isAtivo()) {
-                throw new IllegalArgumentException("Restaurante do produto está inativo: " + existente.getRestaurante().getNome());
             }
         }
     }
@@ -91,7 +99,7 @@ public class PedidoService {
         for (Produto produto : pedido.getProdutos()) {
             Produto existente = produtoRepository.findById(produto.getId()).orElse(null);
             if (existente != null) {
-                total = total.add(existente.getPreco());  // Usa add() para BigDecimal
+                total = total.add(existente.getPreco());
             }
         }
         pedido.setTotal(total);
@@ -101,7 +109,7 @@ public class PedidoService {
         if (atual == novo) {
             throw new IllegalArgumentException("O status já é " + atual);
         }
-        // Regras de transição padrão para pedidos
+
         switch (atual) {
             case PENDENTE:
                 if (novo != PedidoStatus.CONFIRMADO && novo != PedidoStatus.CANCELADO) {
@@ -109,16 +117,16 @@ public class PedidoService {
                 }
                 break;
             case CONFIRMADO:
-                if (novo != PedidoStatus.EM_PREPARO && novo != PedidoStatus.CANCELADO) {
+                if (novo != PedidoStatus.PREPARANDO && novo != PedidoStatus.CANCELADO) {
                     throw new IllegalArgumentException("De CONFIRMADO, só pode ir para PREPARANDO ou CANCELADO");
                 }
                 break;
-            case EM_PREPARO:
-                if (novo != PedidoStatus.A_CAMINHO && novo != PedidoStatus.CANCELADO) {
+            case PREPARANDO:
+                if (novo != PedidoStatus.SAIU_PARA_ENTREGA && novo != PedidoStatus.CANCELADO) {
                     throw new IllegalArgumentException("De PREPARANDO, só pode ir para SAIU_PARA_ENTREGA ou CANCELADO");
                 }
                 break;
-            case A_CAMINHO:
+            case SAIU_PARA_ENTREGA:
                 if (novo != PedidoStatus.ENTREGUE) {
                     throw new IllegalArgumentException("De SAIU_PARA_ENTREGA, só pode ir para ENTREGUE");
                 }
@@ -130,6 +138,5 @@ public class PedidoService {
             default:
                 throw new IllegalArgumentException("Transição de status inválida");
         }
-        // Adicione outras regras de negócio, ex: PENDENTE só para CONFIRMADO
     }
 }
