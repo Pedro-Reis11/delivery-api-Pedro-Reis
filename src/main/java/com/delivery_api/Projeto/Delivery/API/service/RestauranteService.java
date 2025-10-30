@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -18,6 +20,7 @@ public class RestauranteService {
     public Restaurante cadastrar(Restaurante restaurante) {
         validarDadosRestaurante(restaurante);
         restaurante.setAtivo(true);
+        restaurante.setDataCadastro(LocalDateTime.now());
         return restauranteRepository.save(restaurante);
     }
 
@@ -41,6 +44,8 @@ public class RestauranteService {
         r.setNome(atualizado.getNome());
         r.setCategoria(atualizado.getCategoria());
         r.setEndereco(atualizado.getEndereco());
+        r.setTelefone(atualizado.getTelefone());
+        r.setTaxaEntrega(atualizado.getTaxaEntrega());
         r.setAvaliacao(atualizado.getAvaliacao());
         return restauranteRepository.save(r);
     }
@@ -57,12 +62,15 @@ public class RestauranteService {
         }
 
         if (restauranteRepository.existsByNome(restaurante)) {
-            throw new IllegalArgumentException("Restaurante já existe" + restaurante.getNome());
+            throw new IllegalArgumentException("Restaurante já existe: " + restaurante.getNome());
         }
 
         if (restaurante.getNome().length() < 2) {
             throw new IllegalArgumentException("Nome deve ter pelo menos 2 caracteres");
         }
+
+        if (restaurante.getTaxaEntrega() != null && restaurante.getTaxaEntrega().compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Taxa de entrega deve ser maior ou igual a zero");
+        }
     }
 }
-
