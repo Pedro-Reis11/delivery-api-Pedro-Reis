@@ -33,4 +33,10 @@ public class Restaurante {
         this.ativo = false;
     }
 
+    public boolean isAtivo() {
+        if (getAtivo() == true) {
+            return true;
+        }
+        return false;
+    }
 }
