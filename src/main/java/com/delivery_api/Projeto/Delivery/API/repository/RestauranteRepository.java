@@ -4,6 +4,7 @@ import com.delivery_api.Projeto.Delivery.API.entity.Restaurante;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Repository
@@ -20,6 +21,12 @@ public interface RestauranteRepository extends JpaRepository<Restaurante, Long> 
 
     //Ordenação por avaliação
     List<Restaurante> findByAvaliacaoGreaterThanEqualOrderByAvaliacaoDesc(Double avaliacao);
+
+    List<Restaurante> findByTelefone(String telefone);
+
+    List<Restaurante> findByTaxaEntregaGreaterThanEqual(BigDecimal taxaEntrega);
+
+    List<Restaurante> findByAtivoFalse();
 
     boolean existsByNome(Restaurante restaurante);
 }
