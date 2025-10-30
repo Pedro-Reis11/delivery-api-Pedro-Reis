@@ -28,6 +28,14 @@ public interface PedidoRepository extends JpaRepository<Pedido, Long> {
     // Filtrar pedidos por cliente e data
     List<Pedido> findByClienteIdAndDataCriacaoGreaterThanEqual(Long clienteId, LocalDateTime dataCriacao);
 
+    Pedido findByNumeroPedido(String numeroPedido);
+
+    List<Pedido> findByDataPedidoGreaterThanEqual(LocalDateTime dataPedido);
+
+    List<Pedido> findByObservacoesContaining(String observacoes);
+
+    List<Pedido> findByRestauranteId(Long restauranteId);
+
     // Relatório: Contar pedidos por status
     long countByStatus(PedidoStatus status);
 
@@ -45,6 +53,4 @@ public interface PedidoRepository extends JpaRepository<Pedido, Long> {
 
     // Relatório: Contar pedidos por cliente
     long countByClienteId(Long clienteId);
-
-
 }
