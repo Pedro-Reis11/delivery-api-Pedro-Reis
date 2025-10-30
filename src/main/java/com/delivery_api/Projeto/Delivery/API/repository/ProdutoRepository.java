@@ -19,6 +19,12 @@ public interface ProdutoRepository extends JpaRepository<Produto, Long> {
     //Buscar produtos por disponibilidade
     List<Produto> findByRestauranteIdAndDisponivelTrue(Long restauranteId);
 
+    List<Produto> findByCategoria(String categoria);
+
+    List<Produto> findByDescricaoContaining(String descricao);
+
+    List<Produto> findByDisponivelFalse();
+
     boolean existsByNomeAndRestaurante(String nome, Restaurante restaurante);
 
 
