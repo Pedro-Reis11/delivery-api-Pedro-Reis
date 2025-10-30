@@ -17,8 +17,10 @@ public class Cliente {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private String nome;
 
+    @Column(nullable = false, unique = true)
     private String email;
 
     private String telefone;
@@ -28,11 +30,5 @@ public class Cliente {
     @Column(name = "data_cadastro")
     private LocalDateTime dataCadastro;
 
-    @Column(nullable = true)
-    private Boolean ativo;
-
-    public void inativar() {
-        this.ativo = false;
-    }
+    private Boolean ativo = true;
 }
-

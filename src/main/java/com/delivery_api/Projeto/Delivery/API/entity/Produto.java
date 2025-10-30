@@ -1,28 +1,35 @@
 package com.delivery_api.Projeto.Delivery.API.entity;
+
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.math.BigDecimal;
 
 @Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "produto")
+@Table(name = "produtos")
 public class Produto {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(nullable = false)
     private String nome;
-    private String categoria;
+
+    private String descricao;  // Campo adicionado
+
+    @Column(precision = 10, scale = 2, nullable = false)
     private BigDecimal preco;
-    private Boolean disponivel;
+
+    private String categoria;  // Campo adicionado
+
+    private boolean disponivel = true;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "restaurante_id")
-
     private Restaurante restaurante;
-
-    public void inativar() {
-        this.disponivel = false;
-    }
 }
