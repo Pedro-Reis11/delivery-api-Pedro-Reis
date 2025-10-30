@@ -1,6 +1,5 @@
 package com.delivery_api.Projeto.Delivery.API.service;
 
-
 import com.delivery_api.Projeto.Delivery.API.entity.Produto;
 import com.delivery_api.Projeto.Delivery.API.entity.Restaurante;
 import com.delivery_api.Projeto.Delivery.API.repository.ProdutoRepository;
@@ -15,8 +14,10 @@ import java.util.List;
 @Service
 @Transactional
 public class ProdutoService {
+
     @Autowired
     private ProdutoRepository produtoRepository;
+
     @Autowired
     private RestauranteRepository restauranteRepository;
 
@@ -46,30 +47,42 @@ public class ProdutoService {
         return produtoRepository.findByRestauranteIdAndDisponivelTrue(restauranteId);
     }
 
-    public Produto atualizar(Long id, Produto atualizado) {
+    public Produto ativar(Long id) {
         Produto p = buscarPorId(id);
-        p.setNome(atualizado.getNome());
-        p.setPreco(atualizado.getPreco());
-        validarPreco(p.getPreco());
+        p.setDisponivel(true);
         return produtoRepository.save(p);
     }
 
-    public void inativar(Long id) {
+    public Produto desativar(Long id) {
         Produto p = buscarPorId(id);
-        p.inativar();
-        produtoRepository.save(p);
+        p.setDisponivel(false);
+        return produtoRepository.save(p);
+    }
+
+    public Produto atualizar(Long id, Produto atualizado) {
+        Produto p = buscarPorId(id);
+        p.setNome(atualizado.getNome());
+        p.setDescricao(atualizado.getDescricao());
+        p.setPreco(atualizado.getPreco());
+        p.setCategoria(atualizado.getCategoria());
+        validarPreco(p.getPreco());
+        return produtoRepository.save(p);
     }
 
     private void validarDadosProduto(Produto produto, Restaurante restaurante) {
         if (produto.getNome() == null || produto.getNome().trim().isEmpty()) {
             throw new IllegalArgumentException("Nome do produto é obrigatório");
         }
-        if (produtoRepository.existsByNomeAndRestaurante(produto.getNome(), restaurante)) {
+
+        if (produtoRepository.findByRestauranteId(restaurante.getId()).stream()
+                .anyMatch(p -> p.getNome().equals(produto.getNome()))) {
             throw new IllegalArgumentException("Produto já existe neste restaurante: " + produto.getNome());
         }
+
         if (produto.getNome().length() < 2) {
             throw new IllegalArgumentException("Nome do produto deve ter pelo menos 2 caracteres");
         }
+
         validarPreco(produto.getPreco());
     }
 
