@@ -3,8 +3,12 @@ package com.delivery_api.Projeto.Delivery.API.enums;
 public enum PedidoStatus {
     PENDENTE,
     CONFIRMADO,
-    EM_PREPARO,
-    A_CAMINHO,
+    PREPARANDO,
+    SAIU_PARA_ENTREGA,
     ENTREGUE,
-    CANCELADO
+    CANCELADO;
+
+    public boolean isFinal() {
+        return this == ENTREGUE || this == CANCELADO;
+    }
 }
