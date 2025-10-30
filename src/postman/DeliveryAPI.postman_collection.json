@@ -1,0 +1,536 @@
+{
+"info": {
+"name": "Delivery API Tests",
+"description": "Testes para endpoints de Cliente, Produto, Pedido e Restaurante",
+"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+},
+"variable": [
+{
+"key": "baseUrl",
+"value": "http://localhost:8080"
+}
+],
+"item": [
+{
+"name": "Cliente Tests",
+"item": [
+{
+"name": "Cadastrar Cliente",
+"request": {
+"method": "POST",
+"header": [
+{
+"key": "Content-Type",
+"value": "application/json"
+}
+],
+"body": {
+"mode": "raw",
+"raw": "{\"nome\": \"João Silva\", \"email\": \"joao@email.com\", \"telefone\": \"11999999999\"}"
+},
+"url": {
+"raw": "{{baseUrl}}/clientes",
+"host": ["{{baseUrl}}"],
+"path": ["clientes"]
+}
+},
+"event": [
+{
+"listen": "test",
+"script": {
+"exec": [
+"pm.test(\"Status is 201\", function () { pm.response.to.have.status(201); });",
+"pm.test(\"Response has id\", function () { var jsonData = pm.response.json(); pm.expect(jsonData.id).to.be.a('number'); });"
+]
+}
+}
+]
+},
+{
+"name": "Listar Clientes Ativos",
+"request": {
+"method": "GET",
+"header": [],
+"url": {
+"raw": "{{baseUrl}}/clientes",
+"host": ["{{baseUrl}}"],
+"path": ["clientes"]
+}
+},
+"event": [
+{
+"listen": "test",
+"script": {
+"exec": [
+"pm.test(\"Status is 200\", function () { pm.response.to.have.status(200); });",
+"pm.test(\"Response is array\", function () { var jsonData = pm.response.json(); pm.expect(jsonData).to.be.an('array'); });"
+]
+}
+}
+]
+},
+{
+"name": "Buscar Cliente por ID",
+"request": {
+"method": "GET",
+"header": [],
+"url": {
+"raw": "{{baseUrl}}/clientes/1",
+"host": ["{{baseUrl}}"],
+"path": ["clientes", "1"]
+}
+},
+"event": [
+{
+"listen": "test",
+"script": {
+"exec": [
+"pm.test(\"Status is 200 or 404\", function () { pm.expect(pm.response.code).to.be.oneOf([200, 404]); });"
+]
+}
+}
+]
+},
+{
+"name": "Atualizar Cliente",
+"request": {
+"method": "PUT",
+"header": [
+{
+"key": "Content-Type",
+"value": "application/json"
+}
+],
+"body": {
+"mode": "raw",
+"raw": "{\"nome\": \"João Silva Atualizado\", \"email\": \"joao.atualizado@email.com\", \"telefone\": \"11999999999\"}"
+},
+"url": {
+"raw": "{{baseUrl}}/clientes/1",
+"host": ["{{baseUrl}}"],
+"path": ["clientes", "1"]
+}
+},
+"event": [
+{
+"listen": "test",
+"script": {
+"exec": [
+"pm.test(\"Status is 200\", function () { pm.response.to.have.status(200); });"
+]
+}
+}
+]
+},
+{
+"name": "Inativar Cliente",
+"request": {
+"method": "DELETE",
+"header": [],
+"url": {
+"raw": "{{baseUrl}}/clientes/1",
+"host": ["{{baseUrl}}"],
+"path": ["clientes", "1"]
+}
+},
+"event": [
+{
+"listen": "test",
+"script": {
+"exec": [
+"pm.test(\"Status is 200\", function () { pm.response.to.have.status(200); });"
+]
+}
+}
+]
+},
+{
+"name": "Buscar Clientes por Nome",
+"request": {
+"method": "GET",
+"header": [],
+"url": {
+"raw": "{{baseUrl}}/clientes/buscar?nome=João",
+"host": ["{{baseUrl}}"],
+"path": ["clientes", "buscar"],
+"query": [
+{
+"key": "nome",
+"value": "João"
+}
+]
+}
+},
+"event": [
+{
+"listen": "test",
+"script": {
+"exec": [
+"pm.test(\"Status is 200\", function () { pm.response.to.have.status(200); });"
+]
+}
+}
+]
+},
+{
+"name": "Buscar Cliente por Email",
+"request": {
+"method": "GET",
+"header": [],
+"url": {
+"raw": "{{baseUrl}}/clientes/email/joao@email.com",
+"host": ["{{baseUrl}}"],
+"path": ["clientes", "email", "joao@email.com"]
+}
+},
+"event": [
+{
+"listen": "test",
+"script": {
+"exec": [
+"pm.test(\"Status is 200 or 404\", function () { pm.expect(pm.response.code).to.be.oneOf([200, 404]); });"
+]
+}
+}
+]
+}
+]
+},
+{
+"name": "Produto Tests",
+"item": [
+{
+"name": "Cadastrar Produto por Restaurante",
+"request": {
+"method": "POST",
+"header": [
+{
+"key": "Content-Type",
+"value": "application/json"
+}
+],
+"body": {
+"mode": "raw",
+"raw": "{\"nome\": \"Pizza Margherita\", \"preco\": 25.00}"
+},
+"url": {
+"raw": "{{baseUrl}}/produtos/restaurante/1",
+"host": ["{{baseUrl}}"],
+"path": ["produtos", "restaurante", "1"]
+}
+},
+"event": [
+{
+"listen": "test",
+"script": {
+"exec": [
+"pm.test(\"Status is 201\", function () { pm.response.to.have.status(201); });"
+]
+}
+}
+]
+},
+{
+"name": "Listar Produtos por Restaurante",
+"request": {
+"method": "GET",
+"header": [],
+"url": {
+"raw": "{{baseUrl}}/produtos?restauranteId=1",
+"host": ["{{baseUrl}}"],
+"path": ["produtos"],
+"query": [
+{
+"key": "restauranteId",
+"value": "1"
+}
+]
+}
+},
+"event": [
+{
+"listen": "test",
+"script": {
+"exec": [
+"pm.test(\"Status is 200\", function () { pm.response.to.have.status(200); });"
+]
+}
+}
+]
+},
+{
+"name": "Buscar Produto por ID",
+"request": {
+"method": "GET",
+"header": [],
+"url": {
+"raw": "{{baseUrl}}/produtos/1",
+"host": ["{{baseUrl}}"],
+"path": ["produtos", "1"]
+}
+},
+"event": [
+{
+"listen": "test",
+"script": {
+"exec": [
+"pm.test(\"Status is 200 or 404\", function () { pm.expect(pm.response.code).to.be.oneOf([200, 404]); });"
+]
+}
+}
+]
+},
+{
+"name": "Atualizar Produto",
+"request": {
+"method": "PUT",
+"header": [
+{
+"key": "Content-Type",
+"value": "application/json"
+}
+],
+"body": {
+"mode": "raw",
+"raw": "{\"nome\": \"Pizza Margherita Atualizada\", \"preco\": 30.00}"
+},
+"url": {
+"raw": "{{baseUrl}}/produtos/1",
+"host": ["{{baseUrl}}"],
+"path": ["produtos", "1"]
+}
+},
+"event": [
+{
+"listen": "test",
+"script": {
+"exec": [
+"pm.test(\"Status is 200\", function () { pm.response.to.have.status(200); });"
+]
+}
+}
+]
+},
+{
+"name": "Desativar Produto",
+"request": {
+"method": "DELETE",
+"header": [],
+"url": {
+"raw": "{{baseUrl}}/produtos/1",
+"host": ["{{baseUrl}}"],
+"path": ["produtos", "1"]
+}
+},
+"event": [
+{
+"listen": "test",
+"script": {
+"exec": [
+"pm.test(\"Status is 200\", function () { pm.response.to.have.status(200); });"
+]
+}
+}
+]
+},
+{
+"name": "Listar Produtos Disponíveis por Restaurante",
+"request": {
+"method": "GET",
+"header": [],
+"url": {
+"raw": "{{baseUrl}}/produtos/restaurante/1/disponiveis",
+"host": ["{{baseUrl}}"],
+"path": ["produtos", "restaurante", "1", "disponiveis"]
+}
+},
+"event": [
+{
+"listen": "test",
+"script": {
+"exec": [
+"pm.test(\"Status is 200\", function () { pm.response.to.have.status(200); });"
+]
+}
+}
+]
+}
+]
+},
+{
+"name": "Pedido Tests",
+"item": [
+{
+"name": "Criar Pedido",
+"request": {
+"method": "POST",
+"header": [
+{
+"key": "Content-Type",
+"value": "application/json"
+}
+],
+"body": {
+"mode": "raw",
+"raw": "{\"cliente\": {\"id\": 1}, \"produtos\": [{\"id\": 1}], \"enderecoEntrega\": \"Rua A, 123\"}"
+},
+"url": {
+"raw": "{{baseUrl}}/pedidos",
+"host": ["{{baseUrl}}"],
+"path": ["pedidos"]
+}
+},
+"event": [
+{
+"listen": "test",
+"script": {
+"exec": [
+"pm.test(\"Status is 201\", function () { pm.response.to.have.status(201); });"
+]
+}
+}
+]
+},
+{
+"name": "Listar Pedidos por Cliente",
+"request": {
+"method": "GET",
+"header": [],
+"url": {
+"raw": "{{baseUrl}}/pedidos?clienteId=1",
+"host": ["{{baseUrl}}"],
+"path": ["pedidos"],
+"query": [
+{
+"key": "clienteId",
+"value": "1"
+}
+]
+}
+},
+"event": [
+{
+"listen": "test",
+"script": {
+"exec": [
+"pm.test(\"Status is 200\", function () { pm.response.to.have.status(200); });"
+]
+}
+}
+]
+},
+{
+"name": "Buscar Pedido por ID",
+"request": {
+"method": "GET",
+"header": [],
+"url": {
+"raw": "{{baseUrl}}/pedidos/1",
+"host": ["{{baseUrl}}"],
+"path": ["pedidos", "1"]
+}
+},
+"event": [
+{
+"listen": "test",
+"script": {
+"exec": [
+"pm.test(\"Status is 200 or 404\", function () { pm.expect(pm.response.code).to.be.oneOf([200, 404]); });"
+]
+}
+}
+]
+},
+{
+"name": "Atualizar Status do Pedido",
+"request": {
+"method": "PUT",
+"header": [
+{
+"key": "Content-Type",
+"value": "application/json"
+}
+],
+"body": {
+"mode": "raw",
+"raw": "\"CONFIRMADO\""
+},
+"url": {
+"raw": "{{baseUrl}}/pedidos/1/status",
+"host": ["{{baseUrl}}"],
+"path": ["pedidos", "1", "status"]
+}
+},
+"event": [
+{
+"listen": "test",
+"script": {
+"exec": [
+"pm.test(\"Status is 200\", function () { pm.response.to.have.status(200); });"
+]
+}
+}
+]
+}
+]
+},
+{
+"name": "Restaurante Tests (Assumido)",
+"item": [
+{
+"name": "Cadastrar Restaurante",
+"request": {
+"method": "POST",
+"header": [
+{
+"key": "Content-Type",
+"value": "application/json"
+}
+],
+"body": {
+"mode": "raw",
+"raw": "{\"nome\": \"Pizzaria Bella\", \"categoria\": \"Italiana\", \"endereco\": \"Rua B, 456\", \"avaliacao\": 4.5}"
+},
+"url": {
+"raw": "{{baseUrl}}/restaurantes",
+"host": ["{{baseUrl}}"],
+"path": ["restaurantes"]
+}
+},
+"event": [
+{
+"listen": "test",
+"script": {
+"exec": [
+"pm.test(\"Status is 201\", function () { pm.response.to.have.status(201); });"
+]
+}
+}
+]
+},
+{
+"name": "Listar Restaurantes Ativos",
+"request": {
+"method": "GET",
+"header": [],
+"url": {
+"raw": "{{baseUrl}}/restaurantes",
+"host": ["{{baseUrl}}"],
+"path": ["restaurantes"]
+}
+},
+"event": [
+{
+"listen": "test",
+"script": {
+"exec": [
+"pm.test(\"Status is 200\", function () { pm.response.to.have.status(200); });"
+]
+}
+}
+]
+}
+]
+}
+]
+}
