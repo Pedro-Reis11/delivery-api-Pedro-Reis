@@ -1,5 +1,6 @@
 package com.delivery_api.Projeto.Delivery.API.controller;
 
+import com.delivery_api.Projeto.Delivery.API.DTOs.PedidoRequest;
 import com.delivery_api.Projeto.Delivery.API.entity.Pedido;
 import com.delivery_api.Projeto.Delivery.API.enums.PedidoStatus;
 import com.delivery_api.Projeto.Delivery.API.service.PedidoService;
@@ -26,9 +27,9 @@ public class PedidoController {
      * Criar novo pedido
      */
     @PostMapping
-    public ResponseEntity<?> criar(@Validated @RequestBody Pedido pedido) {
+    public ResponseEntity<?> criar(@Validated @RequestBody PedidoRequest pedidoRequest) {
         try {
-            Pedido pedidoSalvo = pedidoService.criar(pedido);
+            Pedido pedidoSalvo = pedidoService.criar(pedidoRequest);
             return ResponseEntity.status(HttpStatus.CREATED).body(pedidoSalvo);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body("Erro: " + e.getMessage());

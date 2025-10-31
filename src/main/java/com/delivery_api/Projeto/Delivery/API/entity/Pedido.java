@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -22,10 +23,10 @@ public class Pedido {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String numeroPedido;  // Campo adicionado
+    private String numeroPedido;
 
     @Column(name = "data_pedido")
-    private LocalDateTime dataPedido;  // Campo adicionado
+    private LocalDateTime dataPedido;
 
     @Enumerated(EnumType.STRING)
     private PedidoStatus status;
@@ -33,7 +34,7 @@ public class Pedido {
     @Column(name = "valor_total", precision = 10, scale = 2)
     private BigDecimal total;  // Mapeado para valor_total
 
-    private String observacoes;  // Campo adicionado
+    private String observacoes;
 
     @Column(name = "endereco_entrega")
     private String enderecoEntrega;
@@ -51,6 +52,10 @@ public class Pedido {
     @JsonIgnoreProperties({"produtos", "hibernateLazyInitializer", "handler"})
     private Restaurante restaurante;
 
+    @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonIgnoreProperties({"pedido", "hibernateLazyInitializer", "handler"})
+    private List<ItemPedido> itens = new ArrayList<>();
+
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "pedido_produto",
@@ -60,9 +65,24 @@ public class Pedido {
     @JsonIgnoreProperties({"restaurante", "hibernateLazyInitializer", "handler"})
     private List<Produto> produtos;
 
-    private String itens;
-
     public void alterarStatus(PedidoStatus novoStatus) {
         this.status = novoStatus;
+    }
+
+    public void adicionarItem(ItemPedido item) {
+        itens.add(item);
+        item.setPedido(this);
+    }
+
+    public void calcularTotal() {
+        BigDecimal totalItens = itens.stream()
+                .map(ItemPedido::getSubtotal)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal taxaEntrega = (restaurante != null && restaurante.getTaxaEntrega() != null)
+                ? restaurante.getTaxaEntrega()
+                : BigDecimal.ZERO;
+
+        this.total = totalItens.add(taxaEntrega);
     }
 }

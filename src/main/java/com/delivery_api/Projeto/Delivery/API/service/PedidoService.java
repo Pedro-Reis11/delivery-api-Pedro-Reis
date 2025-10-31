@@ -1,17 +1,22 @@
 package com.delivery_api.Projeto.Delivery.API.service;
 
-import com.delivery_api.Projeto.Delivery.API.entity.Pedido;
-import com.delivery_api.Projeto.Delivery.API.entity.Produto;
+import com.delivery_api.Projeto.Delivery.API.DTOs.ItemPedidoRequest;
+import com.delivery_api.Projeto.Delivery.API.DTOs.PedidoRequest;
+import com.delivery_api.Projeto.Delivery.API.entity.*;
 import com.delivery_api.Projeto.Delivery.API.enums.PedidoStatus;
+import com.delivery_api.Projeto.Delivery.API.repository.ClienteRepository;
 import com.delivery_api.Projeto.Delivery.API.repository.PedidoRepository;
 import com.delivery_api.Projeto.Delivery.API.repository.ProdutoRepository;
+import com.delivery_api.Projeto.Delivery.API.repository.RestauranteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @Transactional
@@ -23,13 +28,92 @@ public class PedidoService {
     @Autowired
     private ProdutoRepository produtoRepository;
 
-    public Pedido criar(Pedido pedido) {
-        validarDadosPedido(pedido);
-        calcularTotal(pedido);
+    @Autowired
+    private ClienteRepository clienteRepository;
+
+    @Autowired
+    private RestauranteRepository restauranteRepository;
+
+    public Pedido criar(PedidoRequest request) {
+        // Buscar cliente
+        Cliente cliente = clienteRepository.findById(request.getClienteId())
+                .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado: " + request.getClienteId()));
+
+        if (!cliente.getAtivo()) {
+            throw new IllegalArgumentException("Cliente está inativo");
+        }
+
+        // Buscar restaurante
+        Restaurante restaurante = restauranteRepository.findById(request.getRestauranteId())
+                .orElseThrow(() -> new IllegalArgumentException("Restaurante não encontrado: " + request.getRestauranteId()));
+
+        if (!restaurante.isAtivo()) {
+            throw new IllegalArgumentException("Restaurante está inativo");
+        }
+
+        // Validar itens
+        if (request.getItens() == null || request.getItens().isEmpty()) {
+            throw new IllegalArgumentException("Pedido deve conter pelo menos um item");
+        }
+
+        // Validar endereço
+        if (request.getEnderecoEntrega() == null || request.getEnderecoEntrega().trim().isEmpty()) {
+            throw new IllegalArgumentException("Endereço de entrega é obrigatório");
+        }
+
+        // Criar pedido
+        Pedido pedido = new Pedido();
+        pedido.setCliente(cliente);
+        pedido.setRestaurante(restaurante);
+        pedido.setEnderecoEntrega(request.getEnderecoEntrega());
+        pedido.setObservacoes(request.getObservacoes());
         pedido.setStatus(PedidoStatus.PENDENTE);
         pedido.setNumeroPedido("PED-" + System.currentTimeMillis());
         pedido.setDataPedido(LocalDateTime.now());
         pedido.setDataCriacao(LocalDateTime.now());
+
+        // Validar e adicionar itens com quantidade
+        Set<Long> restaurantesDosProdutos = new HashSet<>();
+
+        for (ItemPedidoRequest itemRequest : request.getItens()) {
+            // Validar quantidade
+            if (itemRequest.getQuantidade() == null || itemRequest.getQuantidade() <= 0) {
+                throw new IllegalArgumentException("Quantidade deve ser maior que zero");
+            }
+
+            // Buscar produto
+            Produto produto = produtoRepository.findById(itemRequest.getProdutoId())
+                    .orElseThrow(() -> new IllegalArgumentException("Produto não encontrado: " + itemRequest.getProdutoId()));
+
+            if (!produto.isDisponivel()) {
+                throw new IllegalArgumentException("Produto indisponível: " + produto.getNome());
+            }
+
+            // Validar se produto pertence ao restaurante do pedido
+            restaurantesDosProdutos.add(produto.getRestaurante().getId());
+            if (!produto.getRestaurante().getId().equals(restaurante.getId())) {
+                throw new IllegalArgumentException("Produto " + produto.getNome() + " não pertence ao restaurante selecionado");
+            }
+
+            // Criar item do pedido
+            ItemPedido item = new ItemPedido();
+            item.setProduto(produto);
+            item.setQuantidade(itemRequest.getQuantidade());
+            item.setPrecoUnitario(produto.getPreco());  // Salva preço atual
+            item.setObservacoes(itemRequest.getObservacoes());
+            item.calcularSubtotal();  // quantidade * preço
+
+            pedido.adicionarItem(item);
+        }
+
+        // Verificar se há produtos de múltiplos restaurantes
+        if (restaurantesDosProdutos.size() > 1) {
+            throw new IllegalArgumentException("Todos os produtos devem ser do mesmo restaurante");
+        }
+
+        // Calcular total com base nos itens e taxa de entrega
+        pedido.calcularTotal();
+
         return pedidoRepository.save(pedido);
     }
 
