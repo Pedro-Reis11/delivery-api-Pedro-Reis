@@ -19,6 +19,9 @@ public class PedidoController {
     @Autowired
     private PedidoService pedidoService;
 
+    //DTO para atualização de status
+    record AtualizarStatusRequest(PedidoStatus status) {}
+
     /**
      * Criar novo pedido
      */
@@ -70,9 +73,26 @@ public class PedidoController {
      */
     @PutMapping("/{id}/status")
     public ResponseEntity<?> atualizarStatus(@PathVariable Long id,
-                                             @RequestBody PedidoStatus novoStatus) {
+                                             @RequestBody AtualizarStatusRequest request) {
         try {
-            Pedido pedidoAtualizado = pedidoService.alterarStatus(id, novoStatus);
+            Pedido pedidoAtualizado = pedidoService.alterarStatus(id, request.status());
+            return ResponseEntity.ok(pedidoAtualizado);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body("Erro: " + e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Erro interno do servidor");
+        }
+    }
+
+    /**
+     * Atualizar informações do pedido (observações e endereço)
+     */
+    @PutMapping("/{id}")
+    public ResponseEntity<?> atualizar(@PathVariable Long id,
+                                       @Validated @RequestBody Pedido pedido) {
+        try {
+            Pedido pedidoAtualizado = pedidoService.atualizar(id, pedido);
             return ResponseEntity.ok(pedidoAtualizado);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body("Erro: " + e.getMessage());

@@ -1,5 +1,6 @@
 package com.delivery_api.Projeto.Delivery.API.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -14,6 +15,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "restaurantes")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Restaurante {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -40,6 +42,7 @@ public class Restaurante {
     private Boolean ativo = true;
 
     @OneToMany(mappedBy = "restaurante", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnoreProperties({"restaurante", "hibernateLazyInitializer", "handler"})
     private List<Produto> produtos;
 
     public void inativar() {
@@ -47,6 +50,6 @@ public class Restaurante {
     }
 
     public boolean isAtivo() {
-        return getAtivo() == true;
+        return ativo != null && ativo;
     }
 }

@@ -22,9 +22,10 @@ public class ProdutoService {
     private RestauranteRepository restauranteRepository;
 
     public Produto cadastrarPorRestaurante(Long restauranteId, Produto produto) {
-        Restaurante restaurante = restauranteRepository.findById(restauranteId)
-                .orElseThrow(() -> new IllegalArgumentException("Restaurante não encontrado: " + restauranteId));
-
+        Restaurante restaurante = restauranteRepository.findById(restauranteId).orElseThrow(() -> new IllegalArgumentException("Restaurante não encontrado: " + restauranteId));
+        if (!restaurante.isAtivo()) {
+            throw new IllegalArgumentException("Não é possível adicionar produtos a um restaurante inativo");
+        }
         validarDadosProduto(produto, restaurante);
         produto.setRestaurante(restaurante);
         produto.setDisponivel(true);
@@ -33,13 +34,15 @@ public class ProdutoService {
 
     @Transactional(readOnly = true)
     public List<Produto> listarPorRestaurante(Long restauranteId) {
+        if (restauranteId == null) {
+            return produtoRepository.findAll();
+        }
         return produtoRepository.findByRestauranteId(restauranteId);
     }
 
     @Transactional(readOnly = true)
     public Produto buscarPorId(Long id) {
-        return produtoRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Produto não encontrado: " + id));
+        return produtoRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Produto não encontrado: " + id));
     }
 
     @Transactional(readOnly = true)
@@ -61,6 +64,9 @@ public class ProdutoService {
 
     public Produto atualizar(Long id, Produto atualizado) {
         Produto p = buscarPorId(id);
+        if (!p.getNome().equals(atualizado.getNome()) && produtoRepository.findByRestauranteId(p.getRestaurante().getId()).stream().anyMatch(prod -> prod.getNome().equals(atualizado.getNome()))) {
+            throw new IllegalArgumentException("Já existe um produto com este nome neste restaurante");
+        }
         p.setNome(atualizado.getNome());
         p.setDescricao(atualizado.getDescricao());
         p.setPreco(atualizado.getPreco());
@@ -74,8 +80,7 @@ public class ProdutoService {
             throw new IllegalArgumentException("Nome do produto é obrigatório");
         }
 
-        if (produtoRepository.findByRestauranteId(restaurante.getId()).stream()
-                .anyMatch(p -> p.getNome().equals(produto.getNome()))) {
+        if (produtoRepository.findByRestauranteId(restaurante.getId()).stream().anyMatch(p -> p.getNome().equals(produto.getNome()))) {
             throw new IllegalArgumentException("Produto já existe neste restaurante: " + produto.getNome());
         }
 
@@ -93,6 +98,8 @@ public class ProdutoService {
     }
 
     public void inativar(Long id) {
-
+        Produto p = buscarPorId(id);
+        p.setDisponivel(false);
+        produtoRepository.save(p);
     }
 }

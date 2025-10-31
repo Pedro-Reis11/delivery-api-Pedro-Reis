@@ -1,5 +1,6 @@
 package com.delivery_api.Projeto.Delivery.API.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -12,6 +13,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "produtos")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Produto {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,6 +33,7 @@ public class Produto {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "restaurante_id")
+    @JsonIgnoreProperties({"produtos", "hibernateLazyInitializer", "handler"})
     private Restaurante restaurante;
 
 }

@@ -41,12 +41,18 @@ public class RestauranteService {
 
     public Restaurante atualizar(Long id, Restaurante atualizado) {
         Restaurante r = buscarPorId(id);
+        if (!r.getNome().equals(atualizado.getNome()) && restauranteRepository.existsByNome(atualizado.getNome())) {
+            throw new IllegalArgumentException("Já existe um restaurante com este nome");
+        }
         r.setNome(atualizado.getNome());
         r.setCategoria(atualizado.getCategoria());
         r.setEndereco(atualizado.getEndereco());
         r.setTelefone(atualizado.getTelefone());
         r.setTaxaEntrega(atualizado.getTaxaEntrega());
         r.setAvaliacao(atualizado.getAvaliacao());
+        if (r.getTaxaEntrega() != null && r.getTaxaEntrega().compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Taxa de entrega deve ser maior ou igual a zero");
+        }
         return restauranteRepository.save(r);
     }
 
@@ -61,7 +67,7 @@ public class RestauranteService {
             throw new IllegalArgumentException("Nome é obrigatório");
         }
 
-        if (restauranteRepository.existsByNome(restaurante)) {
+        if (restauranteRepository.existsByNome(restaurante.getNome())) {
             throw new IllegalArgumentException("Restaurante já existe: " + restaurante.getNome());
         }
 

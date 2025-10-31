@@ -28,5 +28,5 @@ public interface RestauranteRepository extends JpaRepository<Restaurante, Long> 
 
     List<Restaurante> findByAtivoFalse();
 
-    boolean existsByNome(Restaurante restaurante);
+    boolean existsByNome(String nome);
 }

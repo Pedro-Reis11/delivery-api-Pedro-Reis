@@ -1,5 +1,6 @@
 package com.delivery_api.Projeto.Delivery.API.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -12,6 +13,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "clientes")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Cliente {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,6 +33,13 @@ public class Cliente {
     private LocalDateTime dataCadastro;
 
     private Boolean ativo = true;
+
+    @PrePersist  //Definir data de cadastro automaticamente
+    protected void onCreate() {
+        if (dataCadastro == null) {
+            dataCadastro = LocalDateTime.now();
+        }
+    }
 
     public void inativar() {
         this.ativo = false;

@@ -1,6 +1,7 @@
 package com.delivery_api.Projeto.Delivery.API.entity;
 
 import com.delivery_api.Projeto.Delivery.API.enums.PedidoStatus;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -15,6 +16,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "pedidos")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Pedido {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -41,11 +43,13 @@ public class Pedido {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cliente_id")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Cliente cliente;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "restaurante_id")
-    private Restaurante restaurante;  // Campo adicionado
+    @JsonIgnoreProperties({"produtos", "hibernateLazyInitializer", "handler"})
+    private Restaurante restaurante;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
@@ -53,6 +57,7 @@ public class Pedido {
             joinColumns = @JoinColumn(name = "pedido_id"),
             inverseJoinColumns = @JoinColumn(name = "produto_id")
     )
+    @JsonIgnoreProperties({"restaurante", "hibernateLazyInitializer", "handler"})
     private List<Produto> produtos;
 
     private String itens;

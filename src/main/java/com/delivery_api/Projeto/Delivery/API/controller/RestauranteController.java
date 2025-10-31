@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/restaurentes")
+@RequestMapping("/restaurantes")
 @CrossOrigin(origins = "*")
 public class RestauranteController {
     @Autowired
@@ -23,7 +23,7 @@ public class RestauranteController {
     public ResponseEntity<?> criar(@Validated @RequestBody Restaurante restaurante) {
         try {
             Restaurante novoRestaurante = restauranteService.cadastrar(restaurante);
-            return ResponseEntity.ok(novoRestaurante);
+            return ResponseEntity.status(HttpStatus.CREATED).body(novoRestaurante);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body("Erro: " + e.getMessage());
         } catch (Exception e) {
@@ -87,7 +87,7 @@ public class RestauranteController {
     /**
      * Buscar restaurantes por categoria
      */
-    @GetMapping("/buscar")
+    @GetMapping("/categoria")
     public ResponseEntity<?> buscarPorCategoria(@RequestParam String categoria) {
         try {
             List<Restaurante> restaurantes = restauranteService.buscarPorCategoria(categoria);

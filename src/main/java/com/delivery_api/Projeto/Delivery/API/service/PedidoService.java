@@ -27,8 +27,9 @@ public class PedidoService {
         validarDadosPedido(pedido);
         calcularTotal(pedido);
         pedido.setStatus(PedidoStatus.PENDENTE);
-        pedido.setNumeroPedido("PED-" + (pedidoRepository.count() + 1));
+        pedido.setNumeroPedido("PED-" + System.currentTimeMillis());
         pedido.setDataPedido(LocalDateTime.now());
+        pedido.setDataCriacao(LocalDateTime.now());
         return pedidoRepository.save(pedido);
     }
 
@@ -62,8 +63,16 @@ public class PedidoService {
 
     public Pedido atualizar(Long id, Pedido atualizado) {
         Pedido p = buscarPorId(id);
-        p.setObservacoes(atualizado.getObservacoes());
-        p.setEnderecoEntrega(atualizado.getEnderecoEntrega());
+        if (p.getStatus() == PedidoStatus.ENTREGUE || p.getStatus() == PedidoStatus.CANCELADO) {
+            throw new IllegalArgumentException("Não é possível atualizar pedidos entregues ou cancelados");
+        }
+
+        if (atualizado.getObservacoes() != null) {
+            p.setObservacoes(atualizado.getObservacoes());
+        }
+        if (atualizado.getEnderecoEntrega() != null) {
+            p.setEnderecoEntrega(atualizado.getEnderecoEntrega());
+        }
         return pedidoRepository.save(p);
     }
 
@@ -76,12 +85,35 @@ public class PedidoService {
             throw new IllegalArgumentException("Cliente é obrigatório");
         }
 
+        if (!pedido.getCliente().getAtivo()) {
+            throw new IllegalArgumentException("Cliente está inativo");
+        }
+
         if (pedido.getRestaurante() == null) {
             throw new IllegalArgumentException("Restaurante é obrigatório");
         }
 
         if (!pedido.getRestaurante().isAtivo()) {
             throw new IllegalArgumentException("Restaurante do pedido está inativo");
+        }
+
+        if (pedido.getEnderecoEntrega() == null || pedido.getEnderecoEntrega().trim().isEmpty()) {
+            throw new IllegalArgumentException("Endereço de entrega é obrigatório");
+        }
+
+
+
+        // Validar se todos produtos são do mesmo restaurante
+        Long restauranteId = null;
+        for (Produto produto : pedido.getProdutos()) {
+            Produto existente = produtoRepository.findById(produto.getId())
+                    .orElseThrow(() -> new IllegalArgumentException("Produto não encontrado: " + produto.getId()));
+
+            if (restauranteId == null) {
+                restauranteId = existente.getRestaurante().getId();
+            } else if (!restauranteId.equals(existente.getRestaurante().getId())) {
+                throw new IllegalArgumentException("Todos os produtos devem ser do mesmo restaurante");
+            }
         }
 
         for (Produto produto : pedido.getProdutos()) {
@@ -100,6 +132,10 @@ public class PedidoService {
             Produto existente = produtoRepository.findById(produto.getId()).orElse(null);
             if (existente != null) {
                 total = total.add(existente.getPreco());
+            }
+            if (pedido.getRestaurante() != null &&
+                    pedido.getRestaurante().getTaxaEntrega() != null) {
+                total = total.add(pedido.getRestaurante().getTaxaEntrega());
             }
         }
         pedido.setTotal(total);
