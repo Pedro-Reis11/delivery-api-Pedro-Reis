@@ -42,3 +42,15 @@ CREATE TABLE pedidos (
     FOREIGN KEY (cliente_id) REFERENCES clientes(id),
     FOREIGN KEY (restaurante_id) REFERENCES restaurantes(id)
 );
+
+CREATE TABLE itens_pedido (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    pedido_id BIGINT NOT NULL,
+    produto_id BIGINT NOT NULL,
+    quantidade INT NOT NULL DEFAULT 1,
+    preco_unitario DECIMAL(10, 2) NOT NULL,
+    subtotal DECIMAL(10, 2) NOT NULL,
+    observacoes VARCHAR(500),
+    FOREIGN KEY (pedido_id) REFERENCES pedidos(id) ON DELETE CASCADE,
+    FOREIGN KEY (produto_id) REFERENCES produtos(id)
+);
