@@ -53,4 +53,60 @@ public interface PedidoRepository extends JpaRepository<Pedido, Long> {
 
     // Relatório: Contar pedidos por cliente
     long countByClienteId(Long clienteId);
+
+    /**
+     * Buscar top 10 pedidos mais recentes
+     */
+    List<Pedido> findTop10ByOrderByDataPedidoDesc();
+
+    /**
+     * Buscar pedidos entre datas específicas
+     */
+    List<Pedido> findByDataPedidoBetween(LocalDateTime inicio, LocalDateTime fim);
+
+    /**
+     * Pedidos com valor acima de um determinado valor
+     */
+    @Query("SELECT p FROM Pedido p WHERE p.total > :valorMinimo ORDER BY p.total DESC")
+    List<Pedido> findPedidosAcimaDeValor(@Param("valorMinimo") BigDecimal valorMinimo);
+
+    /**
+     * Relatório de pedidos por período e status
+     */
+    @Query("SELECT p FROM Pedido p WHERE p.dataCriacao BETWEEN :inicio AND :fim " +
+            "AND p.status = :status ORDER BY p.dataCriacao DESC")
+    List<Pedido> relatorioPorPeriodoEStatus(
+            @Param("inicio") LocalDateTime inicio,
+            @Param("fim") LocalDateTime fim,
+            @Param("status") PedidoStatus status
+    );
+
+    /**
+     * Ranking de clientes por número de pedidos (Query Nativa)
+     */
+    @Query(value = "SELECT c.id, c.nome, COUNT(p.id) as total_pedidos " +
+            "FROM clientes c " +
+            "INNER JOIN pedidos p ON c.id = p.cliente_id " +
+            "GROUP BY c.id, c.nome " +
+            "ORDER BY total_pedidos DESC " +
+            "LIMIT :limite",
+            nativeQuery = true)
+    List<Object[]> rankingClientesPorPedidos(@Param("limite") int limite);
+
+    /**
+     * Faturamento por categoria de restaurante
+     */
+    @Query("SELECT r.categoria, SUM(p.total) as faturamento " +
+            "FROM Pedido p JOIN p.restaurante r " +
+            "WHERE p.status = 'ENTREGUE' " +
+            "GROUP BY r.categoria " +
+            "ORDER BY faturamento DESC")
+    List<Object[]> faturamentoPorCategoria();
+
+    /**
+     * Pedidos agrupados por status com contagem
+     */
+    @Query("SELECT p.status, COUNT(p), SUM(p.total) FROM Pedido p " +
+            "GROUP BY p.status")
+    List<Object[]> resumoPedidosPorStatus();
 }
