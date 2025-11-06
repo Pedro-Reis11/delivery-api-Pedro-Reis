@@ -1,11 +1,12 @@
 package com.delivery_api.Projeto.Delivery.API.controller;
 
-import com.delivery_api.Projeto.Delivery.API.entity.Produto;
+import com.delivery_api.Projeto.Delivery.API.DTO.ProdutoRequestDTO;
+import com.delivery_api.Projeto.Delivery.API.DTO.ProdutoResponseDTO;
 import com.delivery_api.Projeto.Delivery.API.service.ProdutoService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,33 +20,34 @@ public class ProdutoController {
     private ProdutoService produtoService;
 
     /**
-     * Cadastrar novo produto por restaurante
+     * Cadastrar novo produto
+     */
+    @PostMapping
+    public ResponseEntity<ProdutoResponseDTO> cadastrar(@Valid @RequestBody ProdutoRequestDTO requestDTO) {
+        ProdutoResponseDTO response = produtoService.cadastrar(requestDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    /**
+     * Cadastrar produto por restaurante
      */
     @PostMapping("/restaurante/{restauranteId}")
-    public ResponseEntity<?> cadastrar(@PathVariable Long restauranteId,
-                                       @Validated @RequestBody Produto produto) {
-        try {
-            Produto produtoSalvo = produtoService.cadastrarPorRestaurante(restauranteId, produto);
-            return ResponseEntity.status(HttpStatus.CREATED).body(produtoSalvo);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body("Erro: " + e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Erro interno do servidor");
-        }
+    public ResponseEntity<ProdutoResponseDTO> cadastrarPorRestaurante(
+            @PathVariable Long restauranteId,
+            @Valid @RequestBody ProdutoRequestDTO requestDTO) {
+        // Define o restauranteId no DTO
+        requestDTO.setRestauranteId(restauranteId);
+        ProdutoResponseDTO response = produtoService.cadastrar(requestDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     /**
      * Listar todos os produtos (ou por restaurante via query param)
      */
     @GetMapping
-    public ResponseEntity<List<Produto>> listar(@RequestParam(required = false) Long restauranteId) {
-        List<Produto> produtos;
-        if (restauranteId != null) {
-            produtos = produtoService.listarPorRestaurante(restauranteId);
-        } else {
-            produtos = produtoService.listarPorRestaurante(null);
-        }
+    public ResponseEntity<List<ProdutoResponseDTO>> listar(
+            @RequestParam(required = false) Long restauranteId) {
+        List<ProdutoResponseDTO> produtos = produtoService.listarPorRestaurante(restauranteId);
         return ResponseEntity.ok(produtos);
     }
 
@@ -53,57 +55,47 @@ public class ProdutoController {
      * Buscar produto por ID
      */
     @GetMapping("/{id}")
-    public ResponseEntity<?> buscarPorId(@PathVariable Long id) {
-        try {
-            Produto produto = produtoService.buscarPorId(id);
-            return ResponseEntity.ok(produto);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.notFound().build();
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Erro interno do servidor");
-        }
+    public ResponseEntity<ProdutoResponseDTO> buscarPorId(@PathVariable Long id) {
+        ProdutoResponseDTO produto = produtoService.buscarPorId(id);
+        return ResponseEntity.ok(produto);
     }
 
     /**
      * Atualizar produto
      */
     @PutMapping("/{id}")
-    public ResponseEntity<?> atualizar(@PathVariable Long id,
-                                       @Validated @RequestBody Produto produto) {
-        try {
-            Produto produtoAtualizado = produtoService.atualizar(id, produto);
-            return ResponseEntity.ok(produtoAtualizado);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body("Erro: " + e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Erro interno do servidor");
-        }
+    public ResponseEntity<ProdutoResponseDTO> atualizar(
+            @PathVariable Long id,
+            @Valid @RequestBody ProdutoRequestDTO requestDTO) {
+        ProdutoResponseDTO produtoAtualizado = produtoService.atualizar(id, requestDTO);
+        return ResponseEntity.ok(produtoAtualizado);
     }
 
     /**
      * Desativar produto (soft delete)
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> desativar(@PathVariable Long id) {
-        try {
-            produtoService.inativar(id);
-            return ResponseEntity.ok().body("Produto desativado com sucesso");
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body("Erro: " + e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Erro interno do servidor");
-        }
+    public ResponseEntity<String> desativar(@PathVariable Long id) {
+        produtoService.inativar(id);
+        return ResponseEntity.ok("Produto desativado com sucesso");
     }
 
     /**
      * Buscar produtos disponíveis por restaurante
      */
     @GetMapping("/restaurante/{restauranteId}/disponiveis")
-    public ResponseEntity<List<Produto>> buscarDisponiveisPorRestaurante(@PathVariable Long restauranteId) {
-        List<Produto> produtos = produtoService.listarDisponiveisPorRestaurante(restauranteId);
+    public ResponseEntity<List<ProdutoResponseDTO>> buscarDisponiveisPorRestaurante(
+            @PathVariable Long restauranteId) {
+        List<ProdutoResponseDTO> produtos = produtoService.listarDisponiveisPorRestaurante(restauranteId);
         return ResponseEntity.ok(produtos);
+    }
+
+    /**
+     * Ativar produto
+     */
+    @PatchMapping("/{id}/ativar")
+    public ResponseEntity<ProdutoResponseDTO> ativar(@PathVariable Long id) {
+        ProdutoResponseDTO produto = produtoService.ativar(id);
+        return ResponseEntity.ok(produto);
     }
 }

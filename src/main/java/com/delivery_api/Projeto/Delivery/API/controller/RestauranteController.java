@@ -1,42 +1,39 @@
 package com.delivery_api.Projeto.Delivery.API.controller;
 
-import com.delivery_api.Projeto.Delivery.API.entity.Restaurante;
+import com.delivery_api.Projeto.Delivery.API.DTO.RestauranteRequestDTO;
+import com.delivery_api.Projeto.Delivery.API.DTO.RestauranteResponseDTO;
 import com.delivery_api.Projeto.Delivery.API.service.RestauranteService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/restaurantes")
 @CrossOrigin(origins = "*")
 public class RestauranteController {
+
     @Autowired
     private RestauranteService restauranteService;
 
-    //Cadastrar restaurante//
+    /**
+     * Cadastrar novo restaurante
+     */
     @PostMapping
-    public ResponseEntity<?> criar(@Validated @RequestBody Restaurante restaurante) {
-        try {
-            Restaurante novoRestaurante = restauranteService.cadastrar(restaurante);
-            return ResponseEntity.status(HttpStatus.CREATED).body(novoRestaurante);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body("Erro: " + e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro interno do servidor");
-        }
+    public ResponseEntity<RestauranteResponseDTO> criar(@Valid @RequestBody RestauranteRequestDTO requestDTO) {
+        RestauranteResponseDTO response = restauranteService.cadastrar(requestDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     /**
      * Listar todos os restaurantes ativos
      */
     @GetMapping
-    public ResponseEntity<List<Restaurante>> listar() {
-        List<Restaurante> restaurantes = restauranteService.listarAtivos();
+    public ResponseEntity<List<RestauranteResponseDTO>> listar() {
+        List<RestauranteResponseDTO> restaurantes = restauranteService.listarAtivos();
         return ResponseEntity.ok(restaurantes);
     }
 
@@ -44,62 +41,42 @@ public class RestauranteController {
      * Buscar restaurante por ID
      */
     @GetMapping("/{id}")
-    public ResponseEntity<?> buscarPorId(@PathVariable Long id) {
-        try {
-            Restaurante restaurante = restauranteService.buscarPorId(id);
-            return ResponseEntity.ok(restaurante);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("Restaurante não encontrado");
-        }
+    public ResponseEntity<RestauranteResponseDTO> buscarPorId(@PathVariable Long id) {
+        RestauranteResponseDTO restaurante = restauranteService.buscarPorId(id);
+        return ResponseEntity.ok(restaurante);
     }
 
     /**
      * Atualizar restaurante
      */
     @PutMapping("/{id}")
-    public ResponseEntity<?> atualizar(@PathVariable Long id, @Validated @RequestBody Restaurante restaurante) {
-        try {
-            Restaurante atualizado = restauranteService.atualizar(id, restaurante);
-            return ResponseEntity.ok(atualizado);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body("Erro: " + e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro interno do servidor");
-        }
+    public ResponseEntity<RestauranteResponseDTO> atualizar(
+            @PathVariable Long id,
+            @Valid @RequestBody RestauranteRequestDTO requestDTO) {
+        RestauranteResponseDTO restauranteAtualizado = restauranteService.atualizar(id, requestDTO);
+        return ResponseEntity.ok(restauranteAtualizado);
     }
 
     /**
      * Inativar restaurante (soft delete)
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> inativar(@PathVariable Long id) {
-        try {
-            restauranteService.inativar(id);
-            return ResponseEntity.ok("Restaurante inativado com sucesso");
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body("Erro: " + e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro interno do servidor");
-        }
+    public ResponseEntity<String> inativar(@PathVariable Long id) {
+        restauranteService.inativar(id);
+        return ResponseEntity.ok("Restaurante inativado com sucesso");
     }
 
     /**
      * Buscar restaurantes por categoria
      */
     @GetMapping("/categoria")
-    public ResponseEntity<?> buscarPorCategoria(@RequestParam String categoria) {
-        try {
-            List<Restaurante> restaurantes = restauranteService.buscarPorCategoria(categoria);
-            if (restaurantes.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body("Nenhum restaurante encontrado para a categoria: " + categoria);
-            }
-            return ResponseEntity.ok(restaurantes);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Erro interno do servidor");
-        }
-    }
+    public ResponseEntity<List<RestauranteResponseDTO>> buscarPorCategoria(@RequestParam String categoria) {
+        List<RestauranteResponseDTO> restaurantes = restauranteService.buscarPorCategoria(categoria);
 
+        if (restaurantes.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(restaurantes);
+        }
+
+        return ResponseEntity.ok(restaurantes);
+    }
 }
