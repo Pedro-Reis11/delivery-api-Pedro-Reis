@@ -1,8 +1,11 @@
 package com.delivery_api.Projeto.Delivery.API.controller;
 
-import com.delivery_api.Projeto.Delivery.API.DTO.ProdutoRequestDTO;
-import com.delivery_api.Projeto.Delivery.API.DTO.ProdutoResponseDTO;
+import com.delivery_api.Projeto.Delivery.API.DTO.request.ProdutoRequestDTO;
+import com.delivery_api.Projeto.Delivery.API.DTO.response.ProdutoResponseDTO;
 import com.delivery_api.Projeto.Delivery.API.service.ProdutoService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,32 +26,14 @@ public class ProdutoController {
      * Cadastrar novo produto
      */
     @PostMapping
-    public ResponseEntity<ProdutoResponseDTO> cadastrar(@Valid @RequestBody ProdutoRequestDTO requestDTO) {
-        ProdutoResponseDTO response = produtoService.cadastrar(requestDTO);
+    @Operation(summary = "Cadastrar produto", description = "Cadastra um novo produto vinculado a um restaurante.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Produto cadastrado com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Erro de validação")
+    })
+    public ResponseEntity<ProdutoResponseDTO> cadastrar(@Valid @RequestBody ProdutoRequestDTO dto) {
+        ProdutoResponseDTO response = produtoService.cadastrar(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
-    }
-
-    /**
-     * Cadastrar produto por restaurante
-     */
-    @PostMapping("/restaurante/{restauranteId}")
-    public ResponseEntity<ProdutoResponseDTO> cadastrarPorRestaurante(
-            @PathVariable Long restauranteId,
-            @Valid @RequestBody ProdutoRequestDTO requestDTO) {
-        // Define o restauranteId no DTO
-        requestDTO.setRestauranteId(restauranteId);
-        ProdutoResponseDTO response = produtoService.cadastrar(requestDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
-    }
-
-    /**
-     * Listar todos os produtos (ou por restaurante via query param)
-     */
-    @GetMapping
-    public ResponseEntity<List<ProdutoResponseDTO>> listar(
-            @RequestParam(required = false) Long restauranteId) {
-        List<ProdutoResponseDTO> produtos = produtoService.listarPorRestaurante(restauranteId);
-        return ResponseEntity.ok(produtos);
     }
 
     /**
@@ -56,46 +41,47 @@ public class ProdutoController {
      */
     @GetMapping("/{id}")
     public ResponseEntity<ProdutoResponseDTO> buscarPorId(@PathVariable Long id) {
-        ProdutoResponseDTO produto = produtoService.buscarPorId(id);
-        return ResponseEntity.ok(produto);
+        return ResponseEntity.ok(produtoService.buscarPorId(id));
+    }
+
+    /**
+     * Listar produtos por restaurante
+     */
+    @GetMapping("/restaurante/{restauranteId}")
+    public ResponseEntity<List<ProdutoResponseDTO>> listarPorRestaurante(@PathVariable Long restauranteId) {
+        return ResponseEntity.ok(produtoService.listarPorRestaurante(restauranteId));
+    }
+
+    /**
+     * Listar produtos por categoria
+     */
+    @GetMapping("/categoria/{categoria}")
+    public ResponseEntity<List<ProdutoResponseDTO>> listarPorCategoria(@PathVariable String categoria) {
+        return ResponseEntity.ok(produtoService.buscarPorCategoria(categoria));
+    }
+
+    /**
+     * Listar produtos disponíveis
+     */
+    @GetMapping("/disponiveis/{restauranteId}")
+    public ResponseEntity<List<ProdutoResponseDTO>> listarDisponiveis(@PathVariable Long restauranteId) {
+        return ResponseEntity.ok(produtoService.listarDisponiveisPorRestaurante(restauranteId));
     }
 
     /**
      * Atualizar produto
      */
     @PutMapping("/{id}")
-    public ResponseEntity<ProdutoResponseDTO> atualizar(
-            @PathVariable Long id,
-            @Valid @RequestBody ProdutoRequestDTO requestDTO) {
-        ProdutoResponseDTO produtoAtualizado = produtoService.atualizar(id, requestDTO);
-        return ResponseEntity.ok(produtoAtualizado);
+    public ResponseEntity<ProdutoResponseDTO> atualizar(@PathVariable Long id,
+                                                        @Valid @RequestBody ProdutoRequestDTO dto) {
+        return ResponseEntity.ok(produtoService.atualizar(id, dto));
     }
 
     /**
-     * Desativar produto (soft delete)
+     * Ativar / Desativar produto
      */
-    @DeleteMapping("/{id}")
-    public ResponseEntity<String> desativar(@PathVariable Long id) {
-        produtoService.inativar(id);
-        return ResponseEntity.ok("Produto desativado com sucesso");
-    }
-
-    /**
-     * Buscar produtos disponíveis por restaurante
-     */
-    @GetMapping("/restaurante/{restauranteId}/disponiveis")
-    public ResponseEntity<List<ProdutoResponseDTO>> buscarDisponiveisPorRestaurante(
-            @PathVariable Long restauranteId) {
-        List<ProdutoResponseDTO> produtos = produtoService.listarDisponiveisPorRestaurante(restauranteId);
-        return ResponseEntity.ok(produtos);
-    }
-
-    /**
-     * Ativar produto
-     */
-    @PatchMapping("/{id}/ativar")
-    public ResponseEntity<ProdutoResponseDTO> ativar(@PathVariable Long id) {
-        ProdutoResponseDTO produto = produtoService.ativar(id);
-        return ResponseEntity.ok(produto);
+    @PatchMapping("/{id}/ativar-desativar")
+    public ResponseEntity<ProdutoResponseDTO> ativarDesativar(@PathVariable Long id) {
+        return ResponseEntity.ok(produtoService.ativarDesativar(id));
     }
 }

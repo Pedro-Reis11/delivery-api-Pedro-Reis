@@ -1,15 +1,19 @@
 package com.delivery_api.Projeto.Delivery.API.controller;
 
-import com.delivery_api.Projeto.Delivery.API.DTO.PedidoRequestDTO;
-import com.delivery_api.Projeto.Delivery.API.DTO.PedidoResponseDTO;
+import com.delivery_api.Projeto.Delivery.API.DTO.request.PedidoRequestDTO;
+import com.delivery_api.Projeto.Delivery.API.DTO.response.PedidoResponseDTO;
 import com.delivery_api.Projeto.Delivery.API.enums.PedidoStatus;
 import com.delivery_api.Projeto.Delivery.API.service.PedidoService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -29,6 +33,12 @@ public class PedidoController {
      * Criar novo pedido
      */
     @PostMapping
+    @Operation(summary = "Criar um novo pedido", description = "Cadastra um novo pedido com itens e cliente.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Pedido criado com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Erro de validação"),
+            @ApiResponse(responseCode = "404", description = "Cliente ou restaurante não encontrado")
+    })
     public ResponseEntity<PedidoResponseDTO> criar(@Valid @RequestBody PedidoRequestDTO requestDTO) {
         PedidoResponseDTO response = pedidoService.criar(requestDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -38,6 +48,7 @@ public class PedidoController {
      * Listar todos os pedidos (ou por cliente via query param)
      */
     @GetMapping
+    @Operation(summary = "Listar todos os pedidos", description = "Retorna todos os pedidos cadastrados.")
     public ResponseEntity<List<PedidoResponseDTO>> listar(
             @RequestParam(required = false) Long clienteId) {
         List<PedidoResponseDTO> pedidos;
@@ -56,30 +67,29 @@ public class PedidoController {
      */
     @GetMapping("/{id}")
     public ResponseEntity<PedidoResponseDTO> buscarPorId(@PathVariable Long id) {
-        PedidoResponseDTO pedido = pedidoService.buscarPorId(id);
-        return ResponseEntity.ok(pedido);
+        return ResponseEntity.ok(pedidoService.buscarPorId(id));
     }
 
     /**
-     * Atualizar status do pedido
+     * Buscar pedido por Cliente
      */
-    @PutMapping("/{id}/status")
-    public ResponseEntity<PedidoResponseDTO> atualizarStatus(
-            @PathVariable Long id,
-            @RequestBody AtualizarStatusRequest request) {
-        PedidoResponseDTO pedidoAtualizado = pedidoService.alterarStatus(id, request.status());
-        return ResponseEntity.ok(pedidoAtualizado);
+    @GetMapping("/cliente/{clienteId}")
+    @Operation(summary = "Listar pedidos de um cliente", description = "Retorna todos os pedidos realizados por um cliente específico.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Pedidos encontrados"),
+            @ApiResponse(responseCode = "404", description = "Cliente não encontrado")
+    })
+    public ResponseEntity<List<PedidoResponseDTO>> buscarPorCliente(@PathVariable Long clienteId) {
+        List<PedidoResponseDTO> pedidos = pedidoService.listarPorCliente(clienteId);
+        return ResponseEntity.ok(pedidos);
     }
 
     /**
-     * Atualizar informações do pedido (observações e endereço)
+     * Listar pedidos por cliente
      */
-    @PutMapping("/{id}")
-    public ResponseEntity<PedidoResponseDTO> atualizar(
-            @PathVariable Long id,
-            @Valid @RequestBody PedidoRequestDTO requestDTO) {
-        PedidoResponseDTO pedidoAtualizado = pedidoService.atualizar(id, requestDTO);
-        return ResponseEntity.ok(pedidoAtualizado);
+    @GetMapping("/cliente/{clienteId}")
+    public ResponseEntity<List<PedidoResponseDTO>> listarPorCliente(@PathVariable Long clienteId) {
+        return ResponseEntity.ok(pedidoService.listarPorCliente(clienteId));
     }
 
     /**
@@ -87,7 +97,42 @@ public class PedidoController {
      */
     @GetMapping("/status/{status}")
     public ResponseEntity<List<PedidoResponseDTO>> listarPorStatus(@PathVariable PedidoStatus status) {
-        List<PedidoResponseDTO> pedidos = pedidoService.listarPorStatus(status);
-        return ResponseEntity.ok(pedidos);
+        return ResponseEntity.ok(pedidoService.listarPorStatus(status));
+    }
+
+    /**
+     * Atualizar pedido (observações, endereço, etc.)
+     */
+    @PutMapping("/{id}")
+    public ResponseEntity<PedidoResponseDTO> atualizar(@PathVariable Long id,
+                                                       @Valid @RequestBody PedidoRequestDTO dto) {
+        return ResponseEntity.ok(pedidoService.atualizar(id, dto));
+    }
+
+    /**
+     * Atualizar status do pedido
+     */
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<PedidoResponseDTO> atualizarStatus(@PathVariable Long id,
+                                                             @RequestParam PedidoStatus novoStatus) {
+        return ResponseEntity.ok(pedidoService.alterarStatus(id, novoStatus));
+    }
+
+    /**
+     * Listar pedidos recentes
+     */
+    @GetMapping("/recentes")
+    public ResponseEntity<List<PedidoResponseDTO>> listarRecentes() {
+        return ResponseEntity.ok(pedidoService.listarUltimosPedidos());
+    }
+
+    /**
+     * Listar pedidos por período
+     */
+    @GetMapping("/periodo")
+    public ResponseEntity<List<PedidoResponseDTO>> listarPorPeriodo(
+            @RequestParam LocalDateTime inicio,
+            @RequestParam LocalDateTime fim) {
+        return ResponseEntity.ok(pedidoService.buscarPorPeriodo(inicio, fim));
     }
 }
