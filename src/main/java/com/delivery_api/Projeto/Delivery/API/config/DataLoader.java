@@ -30,7 +30,7 @@ public class DataLoader implements CommandLineRunner {
     public void run(String... args) throws Exception {
         System.out.println("\n===== INICIANDO DATALOADER =====\n");
 
-        // Limpar dados existentes
+        // Limpar dados existentes opcional
         limparDados();
 
         // Inserir dados de teste
