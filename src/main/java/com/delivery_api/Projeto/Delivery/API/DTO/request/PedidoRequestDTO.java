@@ -1,4 +1,5 @@
 package com.delivery_api.Projeto.Delivery.API.DTO.request;
+import com.delivery_api.Projeto.Delivery.API.enums.PedidoStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -8,6 +9,7 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -28,7 +30,7 @@ public class PedidoRequestDTO {
 
     @Schema(description = "Status atual do pedido", example = "EM_PREPARO", required = true)
     @NotBlank(message = "O status do pedido é obrigatório")
-    private String status;
+    private PedidoStatus status;
 
     @Schema(description = "Valor total do pedido", example = "89.90", required = true)
     @NotNull(message = "O valor total é obrigatório")
@@ -45,7 +47,11 @@ public class PedidoRequestDTO {
     @NotNull(message = "O ID do restaurante é obrigatório")
     private Long restauranteId;
 
-    @Schema(description = "Itens do pedido em formato JSON ou string", example = "[{\"itemId\":1,\"quantidade\":2}]")
-    @NotBlank(message = "Os itens do pedido são obrigatórios")
-    private String itens;
+    @Schema(description = "Endereço de entrega do pedido", example = "Rua das Flores, 123 - São Paulo")
+    @NotBlank(message = "O endereço de entrega é obrigatório")
+    private String enderecoEntrega;
+
+    @Schema(description = "Lista de itens do pedido")
+    @NotNull(message = "Os itens do pedido são obrigatórios")
+    private List<ItemPedidoRequestDTO> itens;
 }

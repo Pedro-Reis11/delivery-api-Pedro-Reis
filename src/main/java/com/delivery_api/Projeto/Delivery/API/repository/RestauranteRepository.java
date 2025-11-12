@@ -1,6 +1,7 @@
 package com.delivery_api.Projeto.Delivery.API.repository;
 
 import com.delivery_api.Projeto.Delivery.API.entity.Restaurante;
+import com.delivery_api.Projeto.Delivery.API.projection.RelatorioVendas;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -25,20 +26,18 @@ public interface RestauranteRepository extends JpaRepository<Restaurante, Long> 
     boolean existsByNome(String nome);
 
     /**
-     * Total de vendas por restaurante (soma de todos os pedidos)
+     * Relatório de vendas por restaurante
+     * Retorna nome, total de vendas e quantidade de pedidos
      */
-    @Query("SELECT SUM(p.total) FROM Pedido p WHERE p.restaurante.id = :restauranteId")
-    BigDecimal calcularTotalVendasPorRestaurante(@Param("restauranteId") Long restauranteId);
+    @Query("""
+        SELECT r.nome as nomeRestaurante,
+               SUM(p.valorTotal) as totalVendas,
+               COUNT(p.id) as quantidadePedidos
+        FROM Restaurante r
+        LEFT JOIN Pedido p ON r.id = p.restaurante.id
+        GROUP BY r.id, r.nome
+        ORDER BY totalVendas DESC
+        """)
+    List<RelatorioVendas> relatorioVendasPorRestaurante();
 
-    /**
-     * Contar número de pedidos por restaurante
-     */
-    @Query("SELECT COUNT(p) FROM Pedido p WHERE p.restaurante.id = :restauranteId")
-    Long contarPedidosPorRestaurante(@Param("restauranteId") Long restauranteId);
-
-    /**
-     * Buscar restaurantes por faixa de avaliação
-     */
-    @Query("SELECT r FROM Restaurante r WHERE r.avaliacao BETWEEN :min AND :max ORDER BY r.avaliacao DESC")
-    List<Restaurante> buscarPorFaixaAvaliacao(@Param("min") BigDecimal min, @Param("max") BigDecimal max);
 }

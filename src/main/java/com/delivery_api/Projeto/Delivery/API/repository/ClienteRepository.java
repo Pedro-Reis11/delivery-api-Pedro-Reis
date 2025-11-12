@@ -23,32 +23,5 @@ public interface ClienteRepository extends JpaRepository<Cliente, Long> {
     // Buscar clientes por nome (contendo)
     List<Cliente> findByNomeContainingIgnoreCase(String nome);
 
-    /**
-     * Clientes com mais pedidos (top 10)
-     */
-    @Query("SELECT c, COUNT(p) as totalPedidos FROM Cliente c " +
-            "LEFT JOIN Pedido p ON p.cliente = c " +
-            "GROUP BY c " +
-            "ORDER BY totalPedidos DESC")
-    List<Object[]> findClientesComMaisPedidos();
 
-    /**
-     * Clientes inativos
-     */
-    List<Cliente> findByAtivoFalse();
-
-    /**
-     * Buscar clientes por parte do endereço
-     */
-    List<Cliente> findByEnderecoContainingIgnoreCase(String endereco);
-
-    /**
-     * Clientes cadastrados em um período
-     */
-    @Query("SELECT c FROM Cliente c WHERE c.dataCadastro BETWEEN :inicio AND :fim " +
-            "ORDER BY c.dataCadastro DESC")
-    List<Cliente> findClientesPorPeriodoCadastro(
-            @Param("inicio") java.time.LocalDateTime inicio,
-            @Param("fim") java.time.LocalDateTime fim
-    );
 }

@@ -36,5 +36,10 @@ public class ProdutoRequestDTO {
     @Schema(description = "Indica se o produto está disponível para venda", example = "true", required = true)
     @NotNull(message = "O campo de disponibilidade é obrigatório")
     private Boolean disponivel;
+
+    @Schema(description = "Identificador único do restaurante", example = "1")
+    @NotNull(message = "Produto deve estar associado a um restaurante")
+    private Long restauranteId;
+
 }
 
