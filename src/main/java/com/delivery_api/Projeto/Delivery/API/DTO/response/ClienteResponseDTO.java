@@ -1,4 +1,4 @@
-package com.delivery_api.Projeto.Delivery.API.DTO;
+package com.delivery_api.Projeto.Delivery.API.DTO.response;
 
 import com.delivery_api.Projeto.Delivery.API.entity.Cliente;
 import lombok.AllArgsConstructor;
