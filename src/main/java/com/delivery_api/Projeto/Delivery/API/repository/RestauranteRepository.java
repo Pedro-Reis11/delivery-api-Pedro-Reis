@@ -31,7 +31,7 @@ public interface RestauranteRepository extends JpaRepository<Restaurante, Long> 
      */
     @Query("""
         SELECT r.nome as nomeRestaurante,
-               SUM(p.valorTotal) as totalVendas,
+               SUM(p.total) as totalVendas,
                COUNT(p.id) as quantidadePedidos
         FROM Restaurante r
         LEFT JOIN Pedido p ON r.id = p.restaurante.id

@@ -1,876 +1,811 @@
 {
   "info": {
-    "name": "Delivery API Tests - CORRECTED",
-    "description": "Testes completos para endpoints de Cliente, Produto, Pedido e Restaurante (TODAS AS CORREÇÕES APLICADAS)",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    "_postman_id": "d5d685fa-c312-4f41-bf9b-14b706cfe7cc",
+    "name": "DeliveryTech Entrga 2",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "33884958"
   },
-  "variable": [
-    {
-      "key": "baseUrl",
-      "value": "http://localhost:8080"
-    },
-    {
-      "key": "clienteId",
-      "value": ""
-    },
-    {
-      "key": "restauranteId",
-      "value": ""
-    },
-    {
-      "key": "produtoId",
-      "value": ""
-    },
-    {
-      "key": "pedidoId",
-      "value": ""
-    }
-  ],
   "item": [
     {
-      "name": "1. Cliente Tests",
+      "name": "Cliente",
       "item": [
         {
-          "name": "1.1 Cadastrar Cliente",
+          "name": "Entrega2",
+          "item": [
+            {
+              "name": "BuscaPorNome",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "http://localhost:8080/clientes/buscar?nome=João",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "8080",
+                  "path": [
+                    "clientes",
+                    "buscar"
+                  ],
+                  "query": [
+                    {
+                      "key": "nome",
+                      "value": "João"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "BuscaPorEmail",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "http://localhost:8080/clientes/email/maria@email.com",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "8080",
+                  "path": [
+                    "clientes",
+                    "email",
+                    "maria@email.com"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "http://localhost:8080/clientes",
           "request": {
             "method": "POST",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" }
-            ],
+            "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nome\": \"João Silva\",\n  \"email\": \"joao.silva@email.com\",\n  \"telefone\": \"11999999999\",\n  \"endereco\": \"Rua das Flores, 123\"\n}"
+              "raw": "{\r\n    \"nome\": \"Cliente Novo\",\r\n    \"email\": \"joao.silva@example.com\",\r\n    \"telefone\": \"(31) 99999-9999\",\r\n    \"endereco\": \"Rua das Flores, 123 - Contagem, MG\",\r\n    \"dataCadastro\": \"2025-06-26T21:19:00\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
-              "raw": "{{baseUrl}}/clientes",
-              "host": ["{{baseUrl}}"],
-              "path": ["clientes"]
+              "raw": "http://localhost:8080/clientes",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "clientes"
+              ]
             }
           },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status is 201 CREATED\", function () {",
-                  "    pm.response.to.have.status(201);",
-                  "});",
-                  "",
-                  "pm.test(\"Response has id\", function () {",
-                  "    var jsonData = pm.response.json();",
-                  "    pm.expect(jsonData.id).to.be.a('number');",
-                  "    pm.collectionVariables.set('clienteId', jsonData.id);",
-                  "});",
-                  "",
-                  "pm.test(\"Cliente está ativo\", function () {",
-                  "    var jsonData = pm.response.json();",
-                  "    pm.expect(jsonData.ativo).to.be.true;",
-                  "});"
-                ]
-              }
-            }
-          ]
+          "response": []
         },
         {
-          "name": "1.2 Listar Clientes Ativos",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{baseUrl}}/clientes",
-              "host": ["{{baseUrl}}"],
-              "path": ["clientes"]
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status is 200 OK\", function () {",
-                  "    pm.response.to.have.status(200);",
-                  "});",
-                  "",
-                  "pm.test(\"Response is array\", function () {",
-                  "    var jsonData = pm.response.json();",
-                  "    pm.expect(jsonData).to.be.an('array');",
-                  "});"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "1.3 Buscar Cliente por ID",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{baseUrl}}/clientes/{{clienteId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["clientes", "{{clienteId}}"]
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status is 200 or 404\", function () {",
-                  "    pm.expect(pm.response.code).to.be.oneOf([200, 404]);",
-                  "});"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "1.4 Atualizar Cliente",
+          "name": "http://localhost:8080/clientes/1",
           "request": {
             "method": "PUT",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nome\": \"João Silva Atualizado\",\n  \"email\": \"joao.silva.atualizado@email.com\",\n  \"telefone\": \"11988888888\",\n  \"endereco\": \"Rua Nova, 456\"\n}"
+              "raw": "{\r\n    \"id\": 1,\r\n    \"nome\": \"Cliente Atualizado\",\r\n    \"email\": \"atualizado@email.com\",\r\n    \"telefone\": \"(11) 99999-1111\",\r\n    \"endereco\": \"Rua Atualizada, 456\",\r\n    \"ativo\": true\r\n  }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
-              "raw": "{{baseUrl}}/clientes/{{clienteId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["clientes", "{{clienteId}}"]
-            }
+              "raw": "http://localhost:8080/clientes/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "clientes",
+                "1"
+              ]
+            },
+            "description": "Generated from cURL: curl --request PUT \\\r\n  --url http://localhost:8080/clientes/1 \\\r\n  --header 'Content-Type: application/json' \\\r\n  --data '{\r\n    \"nome\": \"Cliente Atualizado\",\r\n    \"email\": \"atualizado@email.com\",\r\n    \"telefone\": \"(11) 99999-1111\",\r\n    \"endereco\": \"Rua Atualizada, 456\",\r\n    \"ativo\": true\r\n  }'\r\n"
           },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status is 200 OK\", function () {",
-                  "    pm.response.to.have.status(200);",
-                  "});"
-                ]
-              }
-            }
-          ]
+          "response": []
         },
         {
-          "name": "1.5 Buscar Cliente por Email",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{baseUrl}}/clientes/email/joao.silva@email.com",
-              "host": ["{{baseUrl}}"],
-              "path": ["clientes", "email", "joao.silva@email.com"]
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status is 200 or 404\", function () {",
-                  "    pm.expect(pm.response.code).to.be.oneOf([200, 404]);",
-                  "});"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "1.6 Buscar Clientes por Nome",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{baseUrl}}/clientes/buscar?nome=João",
-              "host": ["{{baseUrl}}"],
-              "path": ["clientes", "buscar"],
-              "query": [{ "key": "nome", "value": "João" }]
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status is 200 OK\", function () {",
-                  "    pm.response.to.have.status(200);",
-                  "});"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "1.7 Inativar Cliente",
+          "name": "http://localhost:8080/clientes/1",
           "request": {
             "method": "DELETE",
+            "header": [],
             "url": {
-              "raw": "{{baseUrl}}/clientes/{{clienteId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["clientes", "{{clienteId}}"]
-            }
+              "raw": "http://localhost:8080/clientes/2",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "clientes",
+                "2"
+              ]
+            },
+            "description": "Generated from cURL: curl --request DELETE \\\r\n  --url http://localhost:8080/clientes/1"
           },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status is 200 OK\", function () {",
-                  "    pm.response.to.have.status(200);",
-                  "});"
-                ]
-              }
-            }
-          ]
+          "response": []
+        },
+        {
+          "name": "http://localhost:8080/clientes",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/clientes",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "clientes"
+              ]
+            },
+            "description": "Generated from cURL: curl --request GET \\\r\n  --url http://localhost:8080/clientes"
+          },
+          "response": []
+        },
+        {
+          "name": "http://localhost:8080/clientes/1",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/clientes/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "clientes",
+                "1"
+              ]
+            },
+            "description": "Generated from cURL: curl --request GET \\\r\n  --url http://localhost:8080/clientes/1"
+          },
+          "response": []
         }
       ]
     },
     {
-      "name": "2. Restaurante Tests",
+      "name": "Produto",
       "item": [
         {
-          "name": "2.1 Cadastrar Restaurante",
+          "name": "Entrega2",
+          "item": [
+            {
+              "name": "Preço Menor ou Igual",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "http://localhost:8080/produtos/preco/20.00",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "8080",
+                  "path": [
+                    "produtos",
+                    "preco",
+                    "20.00"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Produtos por categoria",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "http://localhost:8080/produtos/categoria/Lanches",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "8080",
+                  "path": [
+                    "produtos",
+                    "categoria",
+                    "Lanches"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Produtos disponiveis",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "http://localhost:8080/produtos/disponiveis",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "8080",
+                  "path": [
+                    "produtos",
+                    "disponiveis"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "http://localhost:8080/produtos",
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nome\": \"Pizzaria Bella\",\n  \"categoria\": \"Italiana\",\n  \"endereco\": \"Av. Brasil, 1000\",\n  \"telefone\": \"11999990000\",\n  \"taxaEntrega\": 5.00,\n  \"avaliacao\": 4.5\n}"
+              "raw": "{\n    \"nome\": \"Produto\",\n    \"descricao\": \"Descrição do produto\",\n    \"preco\": 19.99,\n    \"categoria\": \"Bebidas\",\n    \"disponivel\": true,\n    \"restauranteId\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
-              "raw": "{{baseUrl}}/restaurantes",
-              "host": ["{{baseUrl}}"],
-              "path": ["restaurantes"]
+              "raw": "http://localhost:8080/produtos",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "produtos"
+              ]
             }
           },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status is 201 CREATED\", function () {",
-                  "    pm.response.to.have.status(201);",
-                  "});",
-                  "",
-                  "pm.test(\"Response has id\", function () {",
-                  "    var jsonData = pm.response.json();",
-                  "    pm.expect(jsonData.id).to.be.a('number');",
-                  "    pm.collectionVariables.set('restauranteId', jsonData.id);",
-                  "});"
-                ]
-              }
-            }
-          ]
+          "response": []
         },
         {
-          "name": "2.2 Listar Restaurantes Ativos",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{baseUrl}}/restaurantes",
-              "host": ["{{baseUrl}}"],
-              "path": ["restaurantes"]
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status is 200 OK\", function () {",
-                  "    pm.response.to.have.status(200);",
-                  "});"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "2.3 Buscar Restaurante por ID",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{baseUrl}}/restaurantes/{{restauranteId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["restaurantes", "{{restauranteId}}"]
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status is 200 or 404\", function () {",
-                  "    pm.expect(pm.response.code).to.be.oneOf([200, 404]);",
-                  "});"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "2.4 Buscar Restaurantes por Categoria",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{baseUrl}}/restaurantes/categoria?categoria=Italiana",
-              "host": ["{{baseUrl}}"],
-              "path": ["restaurantes", "categoria"],
-              "query": [{ "key": "categoria", "value": "Italiana" }]
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status is 200 or 404\", function () {",
-                  "    pm.expect(pm.response.code).to.be.oneOf([200, 404]);",
-                  "});"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "2.5 Atualizar Restaurante",
+          "name": "http://localhost:8080/produtos/1",
           "request": {
             "method": "PUT",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nome\": \"Pizzaria Bella Premium\",\n  \"categoria\": \"Italiana\",\n  \"endereco\": \"Av. Brasil, 2000\",\n  \"telefone\": \"11999990001\",\n  \"taxaEntrega\": 7.00,\n  \"avaliacao\": 4.8\n}"
+              "raw": "{\n    \"nome\": \"Produto Atualizado\",\n    \"descricao\": \"Nova descrição\",\n    \"preco\": 29.99,\n    \"categoria\": \"Lanches\",\n    \"disponivel\": false,\n    \"restaurante\": { \"id\": 1 }\n  }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
-              "raw": "{{baseUrl}}/restaurantes/{{restauranteId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["restaurantes", "{{restauranteId}}"]
+              "raw": "http://localhost:8080/produtos/10",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "produtos",
+                "10"
+              ]
             }
           },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status is 200 OK\", function () {",
-                  "    pm.response.to.have.status(200);",
-                  "});"
-                ]
-              }
-            }
-          ]
+          "response": []
         },
         {
-          "name": "2.6 Inativar Restaurante",
+          "name": "http://localhost:8080/produtos/1",
           "request": {
             "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "url": {
-              "raw": "{{baseUrl}}/restaurantes/{{restauranteId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["restaurantes", "{{restauranteId}}"]
+              "raw": "http://localhost:8080/produtos/10",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "produtos",
+                "10"
+              ]
             }
           },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status is 200 OK\", function () {",
-                  "    pm.response.to.have.status(200);",
-                  "});"
-                ]
-              }
+          "response": []
+        },
+        {
+          "name": "http://localhost:8080/produtos/restaurante/1",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/produtos/restaurante/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "produtos",
+                "restaurante",
+                "1"
+              ]
             }
-          ]
+          },
+          "response": []
+        },
+        {
+          "name": "http://localhost:8080/produtos",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/produtos",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "produtos"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "http://localhost:8080/produtos/1",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/produtos/9",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "produtos",
+                "9"
+              ]
+            }
+          },
+          "response": []
         }
       ]
     },
     {
-      "name": "3. Produto Tests",
+      "name": "Pedido",
       "item": [
         {
-          "name": "3.1 Cadastrar Produto por Restaurante",
+          "name": "Entrega2",
+          "item": [
+            {
+              "name": "Pedidos por cliente",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "http://localhost:8080/pedidos/cliente/1/todos",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "8080",
+                  "path": [
+                    "pedidos",
+                    "cliente",
+                    "1",
+                    "todos"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Pedidos Por Status",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "http://localhost:8080/pedidos/status/PENDENTE",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "8080",
+                  "path": [
+                    "pedidos",
+                    "status",
+                    "PENDENTE"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Pedidos Recentes",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "http://localhost:8080/pedidos/recentes",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "8080",
+                  "path": [
+                    "pedidos",
+                    "recentes"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Pedidos por periodo",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "http://localhost:8080/pedidos/periodo?inicio=2024-06-25T00:00:00&fim=2024-07-02T23:59:59",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "8080",
+                  "path": [
+                    "pedidos",
+                    "periodo"
+                  ],
+                  "query": [
+                    {
+                      "key": "inicio",
+                      "value": "2024-06-25T00:00:00"
+                    },
+                    {
+                      "key": "fim",
+                      "value": "2024-07-02T23:59:59"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "http://localhost:8080/pedidos",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"numeroPedido\": \"0002\",\r\n    \"dataPedido\": \"2025-06-26T21:19:00\",\r\n    \"valorTotal\": 10.0,\r\n    \"observacoes\": \"true\",\r\n    \"clienteId\": 1,\r\n    \"restauranteId\": 1,\r\n    \"itens\": \"X-Burger, Batata Frita\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/pedidos",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "pedidos"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "http://localhost:8080/pedidos?clienteId",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/pedidos/cliente/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "pedidos",
+                "cliente",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "http://localhost:8080/pedidos/1/ENTREGUE",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/pedidos/1/CONFIRMADO",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "pedidos",
+                "1",
+                "CONFIRMADO"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Restaurante",
+      "item": [
+        {
+          "name": "Entrega2",
+          "item": [
+            {
+              "name": "Taxa menor ou igual a 5",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "http://localhost:8080/restaurantes/taxa-entrega?taxa=5.00",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "8080",
+                  "path": [
+                    "restaurantes",
+                    "taxa-entrega"
+                  ],
+                  "query": [
+                    {
+                      "key": "taxa",
+                      "value": "5.00"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Top 5",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "http://localhost:8080/restaurantes/top-cinco",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "8080",
+                  "path": [
+                    "restaurantes",
+                    "top-cinco"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Relatiorio Vendas",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "http://localhost:8080/restaurantes/relatorio-vendas",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "8080",
+                  "path": [
+                    "restaurantes",
+                    "relatorio-vendas"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "http://localhost:8080/restaurantes",
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nome\": \"Pizza Margherita\",\n  \"descricao\": \"Pizza com mussarela, tomate e manjericão\",\n  \"preco\": 39.90,\n  \"categoria\": \"Pizza\"\n}"
+              "raw": "{\n    \"nome\": \"Exemplo dois\",\n    \"categoria\": \"Japonês\",\n    \"endereco\": \"Rua das Flores, 100\",\n    \"telefone\": \"(11) 99999-8888\",\n    \"taxa_entrega\": 5.00,\n    \"avaliacao\": 4.5,\n    \"ativo\": true\n  }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
-              "raw": "{{baseUrl}}/produtos/restaurante/{{restauranteId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["produtos", "restaurante", "{{restauranteId}}"]
+              "raw": "http://localhost:8080/restaurantes",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "restaurantes"
+              ]
             }
           },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status is 201 CREATED\", function () {",
-                  "    pm.response.to.have.status(201);",
-                  "});",
-                  "",
-                  "pm.test(\"Response has id\", function () {",
-                  "    var jsonData = pm.response.json();",
-                  "    pm.expect(jsonData.id).to.be.a('number');",
-                  "    pm.collectionVariables.set('produtoId', jsonData.id);",
-                  "});"
-                ]
-              }
-            }
-          ]
+          "response": []
         },
         {
-          "name": "3.2 Listar Produtos por Restaurante",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{baseUrl}}/produtos?restauranteId={{restauranteId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["produtos"],
-              "query": [{ "key": "restauranteId", "value": "{{restauranteId}}" }]
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status is 200 OK\", function () {",
-                  "    pm.response.to.have.status(200);",
-                  "});"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "3.3 Buscar Produto por ID",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{baseUrl}}/produtos/{{produtoId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["produtos", "{{produtoId}}"]
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status is 200 or 404\", function () {",
-                  "    pm.expect(pm.response.code).to.be.oneOf([200, 404]);",
-                  "});"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "3.4 Listar Produtos Disponíveis por Restaurante",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{baseUrl}}/produtos/restaurante/{{restauranteId}}/disponiveis",
-              "host": ["{{baseUrl}}"],
-              "path": ["produtos", "restaurante", "{{restauranteId}}", "disponiveis"]
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status is 200 OK\", function () {",
-                  "    pm.response.to.have.status(200);",
-                  "});"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "3.5 Atualizar Produto",
+          "name": "http://localhost:8080/restaurantes/1",
           "request": {
             "method": "PUT",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nome\": \"Pizza Margherita Premium\",\n  \"descricao\": \"Pizza artesanal com mussarela de búfala\",\n  \"preco\": 45.90,\n  \"categoria\": \"Pizza\"\n}"
+              "raw": "{\n    \"nome\": \"Restaurante Atualizado\",\n    \"categoria\": \"Japonesa\",\n    \"endereco\": \"Rua Nova, 200\",\n    \"telefone\": \"(11) 98888-7777\",\n    \"taxa_entrega\": 7.50,\n    \"avaliacao\": 4.8,\n    \"ativo\": true\n  }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
-              "raw": "{{baseUrl}}/produtos/{{produtoId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["produtos", "{{produtoId}}"]
+              "raw": "http://localhost:8080/restaurantes/4",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "restaurantes",
+                "4"
+              ]
             }
           },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status is 200 OK\", function () {",
-                  "    pm.response.to.have.status(200);",
-                  "});"
-                ]
-              }
-            }
-          ]
+          "response": []
         },
         {
-          "name": "3.6 Desativar Produto",
-          "request": {
-            "method": "DELETE",
-            "url": {
-              "raw": "{{baseUrl}}/produtos/{{produtoId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["produtos", "{{produtoId}}"]
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status is 200 OK\", function () {",
-                  "    pm.response.to.have.status(200);",
-                  "});"
-                ]
-              }
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "4. Pedido Tests",
-      "item": [
-        {
-          "name": "4.1 Criar Pedido (NOVO FORMATO COM QUANTIDADE)",
-          "request": {
-            "method": "POST",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"clienteId\": {{clienteId}},\n  \"restauranteId\": {{restauranteId}},\n  \"itens\": [\n    {\n      \"produtoId\": {{produtoId}},\n      \"quantidade\": 2,\n      \"observacoes\": \"Sem cebola, por favor\"\n    }\n  ],\n  \"enderecoEntrega\": \"Rua das Flores, 123\",\n  \"observacoes\": \"Entregar na portaria\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/pedidos",
-              "host": ["{{baseUrl}}"],
-              "path": ["pedidos"]
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status is 201 CREATED\", function () {",
-                  "    pm.response.to.have.status(201);",
-                  "});",
-                  "",
-                  "pm.test(\"Response has id\", function () {",
-                  "    var jsonData = pm.response.json();",
-                  "    pm.expect(jsonData.id).to.be.a('number');",
-                  "    pm.collectionVariables.set('pedidoId', jsonData.id);",
-                  "});",
-                  "",
-                  "pm.test(\"Status inicial é PENDENTE\", function () {",
-                  "    var jsonData = pm.response.json();",
-                  "    pm.expect(jsonData.status).to.eql('PENDENTE');",
-                  "});"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "4.2 Listar Todos os Pedidos",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{baseUrl}}/pedidos",
-              "host": ["{{baseUrl}}"],
-              "path": ["pedidos"]
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status is 200 OK\", function () {",
-                  "    pm.response.to.have.status(200);",
-                  "});"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "4.3 Listar Pedidos por Cliente",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{baseUrl}}/pedidos?clienteId={{clienteId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["pedidos"],
-              "query": [{ "key": "clienteId", "value": "{{clienteId}}" }]
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status is 200 OK\", function () {",
-                  "    pm.response.to.have.status(200);",
-                  "});"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "4.4 Buscar Pedido por ID",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{baseUrl}}/pedidos/{{pedidoId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["pedidos", "{{pedidoId}}"]
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status is 200 or 404\", function () {",
-                  "    pm.expect(pm.response.code).to.be.oneOf([200, 404]);",
-                  "});"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "4.5 Atualizar Status - CONFIRMADO",
+          "name": "http://localhost:8080/restaurantes/1",
           "request": {
             "method": "PUT",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"status\": \"CONFIRMADO\"\n}"
-            },
+            "header": [],
             "url": {
-              "raw": "{{baseUrl}}/pedidos/{{pedidoId}}/status",
-              "host": ["{{baseUrl}}"],
-              "path": ["pedidos", "{{pedidoId}}", "status"]
+              "raw": "http://localhost:8080/restaurantes/4/inativar",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "restaurantes",
+                "4",
+                "inativar"
+              ]
             }
           },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status is 200 OK\", function () {",
-                  "    pm.response.to.have.status(200);",
-                  "});"
-                ]
-              }
-            }
-          ]
+          "response": []
         },
         {
-          "name": "4.6 Atualizar Status - PREPARANDO",
-          "request": {
-            "method": "PUT",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"status\": \"PREPARANDO\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/pedidos/{{pedidoId}}/status",
-              "host": ["{{baseUrl}}"],
-              "path": ["pedidos", "{{pedidoId}}", "status"]
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status is 200 OK\", function () {",
-                  "    pm.response.to.have.status(200);",
-                  "});"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "4.7 Atualizar Status - SAIU_PARA_ENTREGA",
-          "request": {
-            "method": "PUT",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"status\": \"SAIU_PARA_ENTREGA\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/pedidos/{{pedidoId}}/status",
-              "host": ["{{baseUrl}}"],
-              "path": ["pedidos", "{{pedidoId}}", "status"]
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status is 200 OK\", function () {",
-                  "    pm.response.to.have.status(200);",
-                  "});"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "4.8 Atualizar Status - ENTREGUE",
-          "request": {
-            "method": "PUT",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"status\": \"ENTREGUE\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/pedidos/{{pedidoId}}/status",
-              "host": ["{{baseUrl}}"],
-              "path": ["pedidos", "{{pedidoId}}", "status"]
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status is 200 OK\", function () {",
-                  "    pm.response.to.have.status(200);",
-                  "});"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "4.9 Atualizar Informações do Pedido",
-          "request": {
-            "method": "PUT",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"observacoes\": \"Mudou: trazer refrigerante gelado\",\n  \"enderecoEntrega\": \"Rua Nova, 456\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/pedidos/{{pedidoId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["pedidos", "{{pedidoId}}"]
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status is 200 OK\", function () {",
-                  "    pm.response.to.have.status(200);",
-                  "});"
-                ]
-              }
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "5. Health Check",
-      "item": [
-        {
-          "name": "5.1 Health",
+          "name": "http://localhost:8080/restaurantes",
           "request": {
             "method": "GET",
+            "header": [],
             "url": {
-              "raw": "{{baseUrl}}/health",
-              "host": ["{{baseUrl}}"],
-              "path": ["health"]
+              "raw": "http://localhost:8080/restaurantes",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "restaurantes"
+              ]
             }
           },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status is 200 OK\", function () {",
-                  "    pm.response.to.have.status(200);",
-                  "});",
-                  "",
-                  "pm.test(\"Service is UP\", function () {",
-                  "    var jsonData = pm.response.json();",
-                  "    pm.expect(jsonData.status).to.eql('UP');",
-                  "});"
-                ]
-              }
-            }
-          ]
+          "response": []
         },
         {
-          "name": "5.2 Info",
+          "name": "http://localhost:8080/restaurantes/1",
           "request": {
             "method": "GET",
+            "header": [],
             "url": {
-              "raw": "{{baseUrl}}/info",
-              "host": ["{{baseUrl}}"],
-              "path": ["info"]
+              "raw": "http://localhost:8080/restaurantes/4",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "restaurantes",
+                "4"
+              ]
             }
           },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status is 200 OK\", function () {",
-                  "    pm.response.to.have.status(200);",
-                  "});"
-                ]
-              }
+          "response": []
+        },
+        {
+          "name": "http://localhost:8080/restaurantes/categoria/Italiana",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/restaurantes/categoria/Italiana",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "restaurantes",
+                "categoria",
+                "Italiana"
+              ]
             }
-          ]
+          },
+          "response": []
         }
       ]
     }

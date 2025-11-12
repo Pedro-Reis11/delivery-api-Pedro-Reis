@@ -87,7 +87,7 @@ public class PedidoController {
     /**
      * Listar pedidos por cliente
      */
-    @GetMapping("/cliente/{clienteId}")
+    @GetMapping("/cliente/{clienteId}/pedidos")
     public ResponseEntity<List<PedidoResponseDTO>> listarPorCliente(@PathVariable Long clienteId) {
         return ResponseEntity.ok(pedidoService.listarPorCliente(clienteId));
     }

@@ -29,7 +29,7 @@ public class PedidoRequestDTO {
     private LocalDateTime dataPedido;
 
     @Schema(description = "Status atual do pedido", example = "EM_PREPARO", required = true)
-    @NotBlank(message = "O status do pedido é obrigatório")
+    @NotNull(message = "O status do pedido é obrigatório")
     private PedidoStatus status;
 
     @Schema(description = "Valor total do pedido", example = "89.90", required = true)
