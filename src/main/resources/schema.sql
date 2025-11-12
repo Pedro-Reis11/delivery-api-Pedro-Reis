@@ -1,56 +1,65 @@
-CREATE TABLE clientes (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    nome VARCHAR(100) NOT NULL,
-    email VARCHAR(100) NOT NULL,
-    telefone VARCHAR(20),
-    endereco VARCHAR(200),
-    data_cadastro TIMESTAMP,
-    ativo BOOLEAN
+DROP TABLE IF EXISTS item_pedido;
+DROP TABLE IF EXISTS pedido;
+DROP TABLE IF EXISTS produto;
+DROP TABLE IF EXISTS restaurante;
+DROP TABLE IF EXISTS cliente;
+
+CREATE TABLE cliente (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(255) NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    telefone VARCHAR(50),
+    endereco VARCHAR(255),
+    ativo BOOLEAN DEFAULT TRUE,
+    data_cadastro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE restaurantes (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    nome VARCHAR(100) NOT NULL,
-    categoria VARCHAR(50),
-    endereco VARCHAR(200),
-    telefone VARCHAR(20),
-    taxa_entrega DECIMAL(10,2),
-    avaliacao DECIMAL(2,1),
-    ativo BOOLEAN
+CREATE TABLE restaurante (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(255) NOT NULL UNIQUE,
+    categoria VARCHAR(100),
+    endereco VARCHAR(255),
+    telefone VARCHAR(50),
+    taxa_entrega DECIMAL(10,2) DEFAULT 0.0,
+    avaliacao DECIMAL(3,2),
+    ativo BOOLEAN DEFAULT TRUE,
+    data_cadastro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE produtos (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    nome VARCHAR(100) NOT NULL,
-    descricao VARCHAR(200),
-    preco DECIMAL(10,2),
-    categoria VARCHAR(50),
-    disponivel BOOLEAN,
-    restaurante_id INT
+CREATE TABLE produto (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(255) NOT NULL,
+    descricao VARCHAR(255),
+    preco DECIMAL(10,2) NOT NULL,
+    categoria VARCHAR(100),
+    disponivel BOOLEAN DEFAULT TRUE,
+    restaurante_id BIGINT NOT NULL,
+    CONSTRAINT fk_produto_restaurante FOREIGN KEY (restaurante_id) REFERENCES restaurante(id) ON DELETE CASCADE
 );
 
-CREATE TABLE pedidos (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    numero_pedido VARCHAR(20) NOT NULL,
-    data_pedido TIMESTAMP,
-    status VARCHAR(20),
-    valor_total DECIMAL(10,2),
-    observacoes VARCHAR(200),
-    cliente_id INT,
-    restaurante_id INT,
-    itens VARCHAR(200),
-    FOREIGN KEY (cliente_id) REFERENCES clientes(id),
-    FOREIGN KEY (restaurante_id) REFERENCES restaurantes(id)
+CREATE TABLE pedido (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    numero_pedido VARCHAR(50) NOT NULL UNIQUE,
+    data_pedido TIMESTAMP NOT NULL,
+    data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    status VARCHAR(50) NOT NULL,
+    total DECIMAL(10,2),
+    observacoes VARCHAR(255),
+    endereco_entrega VARCHAR(255) NOT NULL,
+    cliente_id BIGINT NOT NULL,
+    restaurante_id BIGINT NOT NULL,
+    CONSTRAINT fk_pedido_cliente FOREIGN KEY (cliente_id) REFERENCES cliente(id) ON DELETE CASCADE,
+    CONSTRAINT fk_pedido_restaurante FOREIGN KEY (restaurante_id) REFERENCES restaurante(id) ON DELETE CASCADE
 );
 
-CREATE TABLE itens_pedido (
+CREATE TABLE item_pedido (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     pedido_id BIGINT NOT NULL,
     produto_id BIGINT NOT NULL,
-    quantidade INT NOT NULL DEFAULT 1,
-    preco_unitario DECIMAL(10, 2) NOT NULL,
-    subtotal DECIMAL(10, 2) NOT NULL,
-    observacoes VARCHAR(500),
-    FOREIGN KEY (pedido_id) REFERENCES pedidos(id) ON DELETE CASCADE,
-    FOREIGN KEY (produto_id) REFERENCES produtos(id)
+    quantidade INT NOT NULL,
+    preco_unitario DECIMAL(10,2) NOT NULL,
+    subtotal DECIMAL(10,2),
+    observacoes VARCHAR(255),
+    CONSTRAINT fk_item_pedido_pedido FOREIGN KEY (pedido_id) REFERENCES pedido(id) ON DELETE CASCADE,
+    CONSTRAINT fk_item_pedido_produto FOREIGN KEY (produto_id) REFERENCES produto(id) ON DELETE CASCADE
 );
