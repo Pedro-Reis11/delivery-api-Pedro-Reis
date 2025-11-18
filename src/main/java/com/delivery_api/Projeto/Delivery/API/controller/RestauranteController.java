@@ -5,172 +5,213 @@ import com.delivery_api.Projeto.Delivery.API.DTO.response.ApiResponseWrapper;
 import com.delivery_api.Projeto.Delivery.API.DTO.response.RestauranteResponseDTO;
 import com.delivery_api.Projeto.Delivery.API.projection.RelatorioVendas;
 import com.delivery_api.Projeto.Delivery.API.service.RestauranteService;
+
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+
+import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.awt.print.Pageable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
 @RestController
-@RequestMapping("/restaurantes")
+@RequestMapping("/api/restaurantes")
 @CrossOrigin(origins = "*")
+@RequiredArgsConstructor
+@Tag(name = "Restaurantes", description = "Gerenciamento de restaurantes no sistema")
 public class RestauranteController {
 
-    @Autowired
-    private RestauranteService restauranteService;
+    private final RestauranteService restauranteService;
 
+    // ==================================================
+    // CADASTRAR
+    // ==================================================
     @PostMapping
-    @Operation(summary = "Cadastrar restaurante",
-            description = "Cria um novo restaurante no sistema")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(
+            summary = "Cadastrar restaurante",
+            description = "Cria um novo restaurante no sistema"
+    )
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Restaurante criado com sucesso"),
             @ApiResponse(responseCode = "400", description = "Dados inválidos"),
-            @ApiResponse(responseCode = "409", description = "Restaurante já existe")
+            @ApiResponse(responseCode = "409", description = "Restaurante já cadastrado"),
+            @ApiResponse(responseCode = "403", description = "Acesso negado")
     })
-    public ResponseEntity<RestauranteResponseDTO> cadastrar(@Valid @RequestBody RestauranteRequestDTO dto) {
+    public ResponseEntity<RestauranteResponseDTO> cadastrar(
+            @Valid @RequestBody RestauranteRequestDTO dto) {
+
         RestauranteResponseDTO restaurante = restauranteService.cadastrar(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(restaurante);
     }
 
+    // ==================================================
+    // LISTAR TODOS (ADMIN e CLIENTE)
+    // ==================================================
     @GetMapping
-    @Operation(summary = "Listar pedidos",
-            description = "Lista pedidos com filtros opcionais e paginação")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Lista recuperada com sucesso")
-    })
-    public ResponseEntity<ApiResponseWrapper<List<RestauranteResponseDTO>>> listarTodos(
-            @RequestParam(required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataFim,
-            @Parameter(description = "Parâmetros de paginação")
-            Pageable pageable) {
+    @PreAuthorize("hasAnyRole('ADMIN','CLIENTE')")
+    @Operation(
+            summary = "Listar restaurantes",
+            description = "Retorna todos os restaurantes ativos com opção de paginação"
+    )
+    public ResponseEntity<ApiResponseWrapper<List<RestauranteResponseDTO>>> listarTodos(Pageable pageable) {
+
         List<RestauranteResponseDTO> restaurantes = restauranteService.listarAtivos();
-        ApiResponseWrapper<List<RestauranteResponseDTO>> response = new ApiResponseWrapper<>(true, restaurantes, "Busca Realizada com sucesso");
+        ApiResponseWrapper<List<RestauranteResponseDTO>> response =
+                new ApiResponseWrapper<>(true, restaurantes, "Busca realizada com sucesso");
+
         return ResponseEntity.ok(response);
     }
 
+    // ==================================================
+    // BUSCAR POR ID
+    // ==================================================
     @GetMapping("/{id}")
-    @Operation(summary = "Buscar restaurante por ID",
-            description = "Recupera os detalhes de um restaurante específico pelo ID")
+    @PreAuthorize("hasAnyRole('ADMIN','CLIENTE','RESTAURANTE')")
+    @Operation(
+            summary = "Buscar restaurante por ID",
+            description = "Recupera um restaurante específico pelo ID"
+    )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Restaurante encontrado"),
             @ApiResponse(responseCode = "404", description = "Restaurante não encontrado")
     })
     public ResponseEntity<RestauranteResponseDTO> buscarPorId(@PathVariable Long id) {
-        RestauranteResponseDTO restaurante = restauranteService.buscarPorId(id);
-        return ResponseEntity.ok(restaurante);
+        return ResponseEntity.ok(restauranteService.buscarPorId(id));
     }
+
+    // ==================================================
+    // ATUALIZAR
+    // ==================================================
     @PutMapping("/{id}")
-    @Operation(summary = "Atualizar restaurante",
-            description = "Atualiza os detalhes de um restaurante existente pelo ID")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Restaurante atualizado com sucesso"),
-            @ApiResponse(responseCode = "404", description = "Restaurante não encontrado"),
-            @ApiResponse(responseCode = "400", description = "Dados inválidos")
-    })
-    public ResponseEntity<RestauranteResponseDTO> atualizar(@PathVariable Long id, @Valid @RequestBody RestauranteRequestDTO dto) {
-        RestauranteResponseDTO restauranteAtualizado = restauranteService.atualizar(id, dto);
-        return ResponseEntity.ok(restauranteAtualizado);
+    @PreAuthorize("hasAnyRole('ADMIN','RESTAURANTE')")
+    @Operation(
+            summary = "Atualizar restaurante",
+            description = "Atualiza os dados de um restaurante existente"
+    )
+    public ResponseEntity<RestauranteResponseDTO> atualizar(
+            @PathVariable Long id,
+            @Valid @RequestBody RestauranteRequestDTO dto) {
+
+        return ResponseEntity.ok(restauranteService.atualizar(id, dto));
     }
+
+    // ==================================================
+    // ATIVAR / DESATIVAR
+    // ==================================================
     @PatchMapping("/{id}/ativar-desativar")
-    @Operation(summary = "Ativar/Desativar restaurante",
-            description = "Ativa ou desativa um restaurante pelo ID")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Restaurante atualizado com sucesso"),
-            @ApiResponse(responseCode = "404", description = "Restaurante não encontrado")
-    })
-    public ResponseEntity<RestauranteResponseDTO> ativarDesativarRestaurante(@PathVariable Long id) {
-        RestauranteResponseDTO restauranteAtualizado = restauranteService.ativarDesativar(id);
-        return ResponseEntity.ok(restauranteAtualizado);
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(
+            summary = "Ativar/Desativar restaurante",
+            description = "Altera o status ativo/inativo de um restaurante"
+    )
+    public ResponseEntity<RestauranteResponseDTO> ativarDesativar(@PathVariable Long id) {
+        return ResponseEntity.ok(restauranteService.ativarDesativar(id));
     }
+
+    // ==================================================
+    // BUSCAR POR NOME
+    // ==================================================
     @GetMapping("/nome/{nome}")
-    @Operation(summary = "Buscar restaurante por nome",
-            description = "Recupera os detalhes de um restaurante específico pelo nome")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Restaurante encontrado"),
-            @ApiResponse(responseCode = "404", description = "Restaurante não encontrado")
-    })
+    @PreAuthorize("hasAnyRole('ADMIN','CLIENTE','RESTAURANTE')")
+    @Operation(
+            summary = "Buscar restaurante por nome",
+            description = "Recupera um restaurante pelo nome"
+    )
     public ResponseEntity<RestauranteResponseDTO> buscarPorNome(@PathVariable String nome) {
-        RestauranteResponseDTO restaurante = restauranteService.buscarPorNome(nome);
-        return ResponseEntity.ok(restaurante);
+        return ResponseEntity.ok(restauranteService.buscarPorNome(nome));
     }
-    @GetMapping("/preco/{precoMinimo}/{precoMaximo}")
-    @Operation(summary = "Buscar restaurantes por faixa de preço",
-            description = "Lista todos os restaurantes dentro de uma faixa de preço específica")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Restaurantes encontrados"),
-            @ApiResponse(responseCode = "404", description = "Nenhum restaurante encontrado dentro da faixa de preço")
-    })
-    public ResponseEntity<List<RestauranteResponseDTO>> buscarPorPreco(@PathVariable BigDecimal precoMinimo, @PathVariable BigDecimal precoMaximo) {
-        List<RestauranteResponseDTO> restaurantes = restauranteService.buscarPorPreco(precoMinimo, precoMaximo);
-        return ResponseEntity.ok(restaurantes);
+
+    // ==================================================
+    // BUSCAR POR PREÇO
+    // ==================================================
+    @GetMapping("/preco/{min}/{max}")
+    @PreAuthorize("hasAnyRole('ADMIN','CLIENTE','RESTAURANTE')")
+    @Operation(
+            summary = "Buscar restaurantes por faixa de preço",
+            description = "Lista restaurantes dentro de uma faixa de preço"
+    )
+    public ResponseEntity<List<RestauranteResponseDTO>> buscarPorPreco(
+            @PathVariable BigDecimal min,
+            @PathVariable BigDecimal max) {
+
+        return ResponseEntity.ok(restauranteService.buscarPorPreco(min, max));
     }
+
+    // ==================================================
+    // BUSCAR POR CATEGORIA
+    // ==================================================
     @GetMapping("/categoria/{categoria}")
-    @Operation(summary = "Buscar restaurantes por categoria",
-            description = "Lista todos os restaurantes de uma categoria específica")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Restaurantes encontrados"),
-            @ApiResponse(responseCode = "404", description = "Nenhum restaurante encontrado na categoria")
-    })
+    @PreAuthorize("hasAnyRole('ADMIN','CLIENTE','RESTAURANTE')")
+    @Operation(
+            summary = "Buscar restaurantes por categoria",
+            description = "Lista restaurantes pertencentes a uma categoria específica"
+    )
     public ResponseEntity<List<RestauranteResponseDTO>> buscarPorCategoria(@PathVariable String categoria) {
-        List<RestauranteResponseDTO> restaurantes = restauranteService.buscarPorCategoria(categoria);
-        return ResponseEntity.ok(restaurantes);
+        return ResponseEntity.ok(restauranteService.buscarPorCategoria(categoria));
     }
 
+    // ==================================================
+    // INATIVAR DEFINITIVO (ADMIN)
+    // ==================================================
     @PatchMapping("/{id}/inativar")
-    @Operation(summary = "Inativar restaurante",
-            description = "Inativa um restaurante pelo ID")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Restaurante inativado com sucesso"),
-            @ApiResponse(responseCode = "404", description = "Restaurante não encontrado")
-    })
-    public ResponseEntity<RestauranteResponseDTO> inativarRestaurante(@PathVariable Long id) {
-        RestauranteResponseDTO restauranteInativado = restauranteService.ativarDesativar(id);
-        return ResponseEntity.ok(restauranteInativado);
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(
+            summary = "Inativar restaurante",
+            description = "Inativa um restaurante definitivamente"
+    )
+    public ResponseEntity<RestauranteResponseDTO> inativar(@PathVariable Long id) {
+        return ResponseEntity.ok(restauranteService.ativarDesativar(id));
     }
 
+    // ==================================================
+    // TAXA DE ENTREGA
+    // ==================================================
     @GetMapping("/taxa-entrega")
-    @Operation(summary = "Buscar restaurantes por taxa de entrega",
-            description = "Lista todos os restaurantes com uma taxa de entrega específica")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Restaurantes encontrados"),
-            @ApiResponse(responseCode = "404", description = "Nenhum restaurante encontrado com a taxa de entrega especificada")
-    })
-    public ResponseEntity<List<RestauranteResponseDTO>> buscarPorTaxaEntrega(@RequestParam BigDecimal taxa) {
-        List<RestauranteResponseDTO> restaurantes = restauranteService.buscarPorTaxaEntrega(taxa);
-        return ResponseEntity.ok(restaurantes);
+    @PreAuthorize("hasAnyRole('ADMIN','CLIENTE','RESTAURANTE')")
+    @Operation(
+            summary = "Buscar restaurantes por taxa de entrega",
+            description = "Lista restaurantes com taxa de entrega igual ao valor informado"
+    )
+    public ResponseEntity<List<RestauranteResponseDTO>> buscarPorTaxa(@RequestParam BigDecimal taxa) {
+        return ResponseEntity.ok(restauranteService.buscarPorTaxaEntrega(taxa));
     }
 
+    // ==================================================
+    // TOP 5
+    // ==================================================
     @GetMapping("/top-cinco")
-    @Operation(summary = "Listar os 5 restaurantes mais populares por nome",
-            description = "Retorna os 5 restaurantes mais populares ordenados por nome")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Lista dos 5 restaurantes mais populares retornada com sucesso"),
-            @ApiResponse(responseCode = "404", description = "Nenhum restaurante encontrado")
-    })
-    public ResponseEntity<List<RestauranteResponseDTO>> listarTop5PorNome() {
-        List<RestauranteResponseDTO> top5Restaurantes = restauranteService.buscarTop5PorNomeAsc();
-        return ResponseEntity.ok(top5Restaurantes);
+    @PreAuthorize("hasAnyRole('ADMIN','CLIENTE')")
+    @Operation(
+            summary = "Top 5 restaurantes",
+            description = "Retorna os 5 restaurantes mais populares"
+    )
+    public ResponseEntity<List<RestauranteResponseDTO>> top5() {
+        return ResponseEntity.ok(restauranteService.buscarTop5PorNomeAsc());
     }
 
+    // ==================================================
+    // RELATÓRIO DE VENDAS
+    // ==================================================
     @GetMapping("/relatorio-vendas")
-    @Operation(summary = "Gerar relatório de vendas por restaurante",
-            description = "Gera um relatório de vendas agrupado por restaurante")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Relatório de vendas gerado com sucesso"),
-            @ApiResponse(responseCode = "404", description = "Nenhum dado de vendas encontrado")
-    })
-    public ResponseEntity<List<RelatorioVendas>> relatorioVendasPorRestaurante() {
-        List<RelatorioVendas> relatorio = restauranteService.relatorioVendasPorRestaurante();
-        return ResponseEntity.ok(relatorio);
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(
+            summary = "Relatório de vendas",
+            description = "Gera relatório de vendas por restaurante"
+    )
+    public ResponseEntity<List<RelatorioVendas>> relatorio() {
+        return ResponseEntity.ok(restauranteService.relatorioVendasPorRestaurante());
     }
 }

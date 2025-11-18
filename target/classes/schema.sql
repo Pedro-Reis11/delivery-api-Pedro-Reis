@@ -1,3 +1,5 @@
+SET FOREIGN_KEY_CHECKS = 0;
+
 -- Limpar tabelas existentes (em ordem reversa de dependências para evitar erros de foreign key)
 DROP TABLE IF EXISTS item_pedido;
 DROP TABLE IF EXISTS pedidos;
@@ -65,3 +67,5 @@ CREATE TABLE IF NOT EXISTS item_pedido (
     CONSTRAINT fk_item_pedido_pedido FOREIGN KEY (pedido_id) REFERENCES pedidos(id) ON DELETE CASCADE,
     CONSTRAINT fk_item_pedido_produto FOREIGN KEY (produto_id) REFERENCES produtos(id) ON DELETE CASCADE
 );
+
+SET FOREIGN_KEY_CHECKS = 1;

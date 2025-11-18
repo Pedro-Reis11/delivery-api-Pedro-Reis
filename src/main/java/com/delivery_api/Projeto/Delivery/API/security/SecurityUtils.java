@@ -4,10 +4,12 @@ import com.delivery_api.Projeto.Delivery.API.entity.Usuario;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Component;
 
+@Component
 public class SecurityUtils {
 
-    public static Usuario getCurrentUser() {
+    public Usuario getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication != null && authentication.getPrincipal() instanceof UserDetails) {
@@ -17,24 +19,24 @@ public class SecurityUtils {
         throw new RuntimeException("Usuário não autenticado");
     }
 
-    public static Long getCurrentUserId() {
+    public Long getCurrentUserId() {
         return getCurrentUser().getId();
     }
 
-    public static String getCurrentUserEmail() {
+    public String getCurrentUserEmail() {
         return getCurrentUser().getEmail();
     }
 
-    public static String getCurrentUserRole() {
+    public String getCurrentUserRole() {
         return getCurrentUser().getRole().name();
     }
 
-    public static Long getCurrentRestauranteId() {
+    public Long getCurrentRestauranteId() {
         Usuario usuario = getCurrentUser();
         return usuario.getRestauranteId();
     }
 
-    public static boolean hasRole(String role) {
+    public boolean hasRole(String role) {
         try {
             Usuario usuario = getCurrentUser();
             return usuario.getRole().name().equals(role);
@@ -43,16 +45,31 @@ public class SecurityUtils {
         }
     }
 
-    public static boolean isAdmin() {
+    public boolean isAdmin() {
         return hasRole("ADMIN");
     }
 
-    public static boolean isCliente() {
+    public boolean isCliente() {
         return hasRole("CLIENTE");
     }
 
-    public static boolean isRestaurante() {
+    public boolean isRestaurante() {
         return hasRole("RESTAURANTE");
     }
 
+    public boolean isOwnerCliente(Long clienteId) {
+        Usuario user = getCurrentUser();
+
+        if (isAdmin()) return true;
+
+        return user.getId().equals(clienteId);
+    }
+
+    public boolean isOwnerEmail(String email) {
+        Usuario user = getCurrentUser();
+
+        if (isAdmin()) return true;
+
+        return user.getEmail().equalsIgnoreCase(email);
+    }
 }

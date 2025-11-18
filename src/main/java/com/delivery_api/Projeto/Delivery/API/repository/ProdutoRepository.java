@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ProdutoRepository extends JpaRepository<Produto, Long> {
@@ -26,7 +27,9 @@ public interface ProdutoRepository extends JpaRepository<Produto, Long> {
     List<Produto> findByPrecoLessThanEqual(BigDecimal preco);
 
     // Buscar produto por nome
-    Produto findByNome(String nome);
+    Optional<Produto> findByNome(String nome);
 
     boolean existsByNomeAndRestaurante(String nome, Restaurante restaurante);
+
+    List<Produto> findByPrecoBetween(BigDecimal precoMinimo, BigDecimal precoMaximo);
 }

@@ -29,6 +29,10 @@ public class Cliente {
 
     private String endereco;
 
+    @Column(length = 9) // padrão de CEP no Brasil: 12345-678
+    private String cep;
+
+
     @Column(name = "data_cadastro")
     private LocalDateTime dataCadastro;
 

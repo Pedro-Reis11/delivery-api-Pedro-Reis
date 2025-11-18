@@ -5,13 +5,18 @@ import com.delivery_api.Projeto.Delivery.API.DTO.request.PedidoRequestDTO;
 import com.delivery_api.Projeto.Delivery.API.DTO.response.PedidoResponseDTO;
 import com.delivery_api.Projeto.Delivery.API.enums.PedidoStatus;
 import com.delivery_api.Projeto.Delivery.API.service.PedidoService;
+
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -19,146 +24,143 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
-@RequestMapping("/pedidos")
+@RequestMapping("/api/pedidos")
 @CrossOrigin(origins = "*")
+@RequiredArgsConstructor
+@Tag(name = "Pedidos", description = "Gerenciamento de pedidos no sistema")
 public class PedidoController {
 
-    @Autowired
-    private PedidoService pedidoService;
+    private final PedidoService pedidoService;
 
+    // ==================================================
+    // CRIAR PEDIDO
+    // ==================================================
     @PostMapping
-    @Operation(summary = "Criar pedido",
-            description = "Cria um novo pedido no sistema")
+    @PreAuthorize("hasRole('CLIENTE')")
+    @Operation(summary = "Criar pedido", description = "Cria um novo pedido no sistema")
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Pedido criado com sucesso"),
-            @ApiResponse(responseCode = "400", description = "Erro de validação nos dados do pedido"),
-            @ApiResponse(responseCode = "404", description = "Cliente ou restaurante não encontrado")
+            @ApiResponse(responseCode = "400", description = "Erro de validação nos dados"),
+            @ApiResponse(responseCode = "404", description = "Cliente ou restaurante não encontrado"),
+            @ApiResponse(responseCode = "401", description = "Usuário não autenticado"),
+            @ApiResponse(responseCode = "403", description = "Acesso negado")
     })
     public ResponseEntity<PedidoResponseDTO> criar(@Valid @RequestBody PedidoRequestDTO requestDTO) {
         PedidoResponseDTO response = pedidoService.criar(requestDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    // ==================================================
+    // LISTAR TODOS
+    // ==================================================
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'RESTAURANTE')")
     @Operation(summary = "Listar pedidos",
             description = "Lista todos os pedidos ou filtra por cliente usando o parâmetro clienteId")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Lista de pedidos recuperada com sucesso"),
-            @ApiResponse(responseCode = "404", description = "Nenhum pedido encontrado")
+            @ApiResponse(responseCode = "200", description = "Lista de pedidos retornada")
     })
     public ResponseEntity<List<PedidoResponseDTO>> listar(@RequestParam(required = false) Long clienteId) {
         List<PedidoResponseDTO> pedidos =
-                (clienteId != null) ? pedidoService.listarPorCliente(clienteId) : pedidoService.listarTodos();
+                (clienteId != null) ? pedidoService.listarPorCliente(clienteId)
+                        : pedidoService.listarTodos();
         return ResponseEntity.ok(pedidos);
     }
 
+    // ==================================================
+    // BUSCAR POR ID
+    // ==================================================
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'CLIENTE', 'RESTAURANTE')")
     @Operation(summary = "Buscar pedido por ID",
-            description = "Recupera os detalhes de um pedido específico pelo ID")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Pedido encontrado"),
-            @ApiResponse(responseCode = "404", description = "Pedido não encontrado")
-    })
+            description = "Retorna os detalhes de um pedido específico")
     public ResponseEntity<PedidoResponseDTO> buscarPorId(@PathVariable Long id) {
         return ResponseEntity.ok(pedidoService.buscarPorId(id));
     }
 
+    // ==================================================
+    // PEDIDOS POR CLIENTE
+    // ==================================================
     @GetMapping("/cliente/{clienteId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'CLIENTE')")
     @Operation(summary = "Listar pedidos por cliente",
-            description = "Recupera pedidos feitos por um cliente específico")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Pedidos encontrados"),
-            @ApiResponse(responseCode = "404", description = "Cliente não encontrado ou sem pedidos")
-    })
+            description = "Retorna os pedidos realizados pelo cliente especificado")
     public ResponseEntity<List<PedidoResponseDTO>> buscarPorCliente(@PathVariable Long clienteId) {
-        List<PedidoResponseDTO> pedidos = pedidoService.listarPorCliente(clienteId);
-        return ResponseEntity.ok(pedidos);
+        return ResponseEntity.ok(pedidoService.listarPorCliente(clienteId));
     }
 
+    // ==================================================
+    // PEDIDOS POR STATUS
+    // ==================================================
     @GetMapping("/status/{status}")
-    @Operation(summary = "Listar pedidos por status",
-            description = "Recupera pedidos filtrados pelo status informado")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Pedidos encontrados"),
-            @ApiResponse(responseCode = "404", description = "Nenhum pedido encontrado com o status fornecido")
-    })
+    @PreAuthorize("hasAnyRole('ADMIN', 'RESTAURANTE')")
+    @Operation(summary = "Listar pedidos por status")
     public ResponseEntity<List<PedidoResponseDTO>> listarPorStatus(@PathVariable PedidoStatus status) {
         return ResponseEntity.ok(pedidoService.listarPorStatus(status));
     }
 
+    // ==================================================
+    // ATUALIZAR PEDIDO
+    // ==================================================
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'RESTAURANTE')")
     @Operation(summary = "Atualizar pedido",
             description = "Atualiza os dados de um pedido existente")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Pedido atualizado com sucesso"),
-            @ApiResponse(responseCode = "400", description = "Dados inválidos"),
-            @ApiResponse(responseCode = "404", description = "Pedido não encontrado")
-    })
     public ResponseEntity<PedidoResponseDTO> atualizar(@PathVariable Long id,
                                                        @Valid @RequestBody PedidoRequestDTO dto) {
         return ResponseEntity.ok(pedidoService.atualizar(id, dto));
     }
 
+    // ==================================================
+    // ALTERAR STATUS DO PEDIDO
+    // ==================================================
     @PatchMapping("/{id}/status")
-    @Operation(summary = "Atualizar status do pedido",
-            description = "Altera o status de um pedido específico")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Status atualizado com sucesso"),
-            @ApiResponse(responseCode = "404", description = "Pedido não encontrado"),
-            @ApiResponse(responseCode = "400", description = "Status inválido")
-    })
-    public ResponseEntity<PedidoResponseDTO> atualizarStatus(@PathVariable Long id,
-                                                             @RequestParam PedidoStatus novoStatus) {
+    @PreAuthorize("hasAnyRole('ADMIN', 'RESTAURANTE')")
+    @Operation(summary = "Atualizar status do pedido")
+    public ResponseEntity<PedidoResponseDTO> atualizarStatus(
+            @PathVariable Long id,
+            @RequestParam PedidoStatus novoStatus) {
         return ResponseEntity.ok(pedidoService.alterarStatus(id, novoStatus));
     }
 
+    // ==================================================
+    // LISTAR PEDIDOS RECENTES
+    // ==================================================
     @GetMapping("/recentes")
-    @Operation(summary = "Listar pedidos recentes",
-            description = "Retorna os pedidos mais recentes do sistema")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Pedidos recuperados com sucesso"),
-            @ApiResponse(responseCode = "404", description = "Nenhum pedido recente encontrado")
-    })
+    @PreAuthorize("hasAnyRole('ADMIN', 'RESTAURANTE')")
     public ResponseEntity<List<PedidoResponseDTO>> listarRecentes() {
         return ResponseEntity.ok(pedidoService.listarUltimosPedidos());
     }
 
+    // ==================================================
+    // LISTAR PEDIDOS POR PERÍODO
+    // ==================================================
     @GetMapping("/periodo")
-    @Operation(summary = "Listar pedidos por período",
-            description = "Recupera pedidos realizados dentro do intervalo informado")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Pedidos recuperados com sucesso"),
-            @ApiResponse(responseCode = "404", description = "Nenhum pedido encontrado no período informado")
-    })
+    @PreAuthorize("hasAnyRole('ADMIN', 'RESTAURANTE')")
     public ResponseEntity<List<PedidoResponseDTO>> listarPorPeriodo(
             @RequestParam LocalDateTime inicio,
             @RequestParam LocalDateTime fim) {
         return ResponseEntity.ok(pedidoService.buscarPorPeriodo(inicio, fim));
     }
 
+    // ==================================================
+    // CANCELAR PEDIDO
+    // ==================================================
     @DeleteMapping("/{id}")
-    @Operation(summary = "Cancelar pedido",
-            description = "Cancela um pedido específico")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Pedido cancelado com sucesso"),
-            @ApiResponse(responseCode = "404", description = "Pedido não encontrado")
-    })
+    @PreAuthorize("hasAnyRole('ADMIN', 'CLIENTE')")
     public ResponseEntity<PedidoResponseDTO> cancelarPedido(@PathVariable Long id) {
-        PedidoResponseDTO pedido = pedidoService.cancelarPedido(id);
-        return ResponseEntity.ok(pedido);
+        return ResponseEntity.ok(pedidoService.cancelarPedido(id));
     }
 
+    // ==================================================
+    // CALCULAR TOTAL DO PEDIDO
+    // ==================================================
     @PostMapping("/calcular")
-    @Operation(summary = "Calcular valor total do pedido",
-            description = "Calcula o valor total de um pedido com base nos itens enviados")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Valor total calculado com sucesso"),
-            @ApiResponse(responseCode = "400", description = "Itens inválidos")
-    })
+    @PreAuthorize("hasAnyRole('ADMIN', 'CLIENTE', 'RESTAURANTE')")
+    @Operation(summary = "Calcular valor total")
     public ResponseEntity<BigDecimal> calcularValorTotalPedido(
-            @RequestBody List<ItemPedidoRequestDTO> itens) {
+            @Valid @RequestBody List<ItemPedidoRequestDTO> itens) {
 
-        BigDecimal valorTotal = pedidoService.calcularValorTotalPedido(itens);
-        return ResponseEntity.ok(valorTotal);
+        return ResponseEntity.ok(pedidoService.calcularValorTotalPedido(itens));
     }
 }

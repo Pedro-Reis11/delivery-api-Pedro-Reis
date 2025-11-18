@@ -1,6 +1,6 @@
 package com.delivery_api.Projeto.Delivery.API.DTO.response;
 
-import com.delivery_api.Projeto.Delivery.API.entity.Produto;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -10,24 +10,30 @@ import java.math.BigDecimal;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Schema(description = "DTO de resposta contendo os dados de um produto")
 public class ProdutoResponseDTO {
-    private Long id;
-    private String nome;
-    private String descricao;
-    private BigDecimal preco;
-    private String categoria;
-    private Boolean disponivel;
-    private String restauranteNome;
-    private Long restauranteId;
 
-    public ProdutoResponseDTO (Produto save){
-        this.id = save.getId();
-        this.nome = save.getNome();
-        this.descricao = save.getDescricao();
-        this.preco = save.getPreco();
-        this.categoria = save.getCategoria();
-        this.disponivel = save.getDisponivel();
-        this.restauranteNome = save.getRestaurante().getNome();
-        this.restauranteId = save.getRestaurante().getId();
-    }
+    @Schema(description = "ID do produto", example = "1")
+    private Long id;
+
+    @Schema(description = "Nome do produto", example = "Pizza Margherita")
+    private String nome;
+
+    @Schema(description = "Descrição detalhada do produto", example = "Pizza com molho de tomate e mussarela")
+    private String descricao;
+
+    @Schema(description = "Preço do produto", example = "39.90")
+    private BigDecimal preco;
+
+    @Schema(description = "Categoria do produto", example = "Pizzas")
+    private String categoria;
+
+    @Schema(description = "Indica se o produto está disponível", example = "true")
+    private Boolean disponivel;
+
+    @Schema(description = "Nome do restaurante ao qual o produto pertence", example = "Pizzaria Sabor & Arte")
+    private String restauranteNome;
+
+    @Schema(description = "ID do restaurante", example = "5")
+    private Long restauranteId;
 }

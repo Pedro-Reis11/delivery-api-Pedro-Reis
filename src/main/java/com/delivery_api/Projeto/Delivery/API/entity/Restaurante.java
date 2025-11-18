@@ -52,4 +52,5 @@ public class Restaurante {
     public boolean isAtivo() {
         return ativo != null && ativo;
     }
-}
+
+    }
