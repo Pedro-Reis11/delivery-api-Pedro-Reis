@@ -1,8 +1,10 @@
 package com.delivery_api.Projeto.Delivery.API.service;
+import com.delivery_api.Projeto.Delivery.API.DTO.request.ItemPedidoRequestDTO;
 import com.delivery_api.Projeto.Delivery.API.DTO.request.PedidoRequestDTO;
 import com.delivery_api.Projeto.Delivery.API.DTO.response.PedidoResponseDTO;
 import com.delivery_api.Projeto.Delivery.API.enums.PedidoStatus;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -26,5 +28,7 @@ public interface PedidoService {
 
     List<PedidoResponseDTO> buscarPorPeriodo(LocalDateTime inicio, LocalDateTime fim);
 
-    List<PedidoResponseDTO> buscarPorCliente(Long clienteId);
+    PedidoResponseDTO cancelarPedido(Long id);
+
+    BigDecimal calcularValorTotalPedido(List<ItemPedidoRequestDTO> itens );
 }

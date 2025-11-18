@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -29,121 +30,152 @@ public class RestauranteServiceImpl implements RestauranteService {
     private ModelMapper modelMapper;
 
     @Override
-    public RestauranteResponseDTO cadastrar(RestauranteRequestDTO requestDTO) {
-        if (restauranteRepository.existsByNome(requestDTO.getNome())) {
-            throw new BusinessException("Restaurante já existe: " + requestDTO.getNome());
+    public RestauranteResponseDTO cadastrar(RestauranteRequestDTO dto) {
+        // Validar nome único
+        Optional<Restaurante> byNome = restauranteRepository.findByNome(dto.getNome());
+        if (byNome.equals(dto.getNome())) {
+            throw new BusinessException("Restaurante já cadastrado: " + dto.getNome());
         }
-
-        if (requestDTO.getTaxaEntrega() != null &&
-                requestDTO.getTaxaEntrega().compareTo(BigDecimal.ZERO) < 0) {
-            throw new BusinessException("Taxa de entrega deve ser maior ou igual a zero");
-        }
-
-        Restaurante restaurante = modelMapper.map(requestDTO, Restaurante.class);
-        restaurante.setAtivo(true);
-        restaurante.setDataCadastro(LocalDateTime.now());
-
-        Restaurante salvo = restauranteRepository.save(restaurante);
-        return modelMapper.map(salvo, RestauranteResponseDTO.class);
+        // Converter DTO para entidade
+        Restaurante restaurante = modelMapper.map(dto, Restaurante.class);
+        // Salvar cliente
+        Restaurante restauranteSalvo = restauranteRepository.save(restaurante);
+        // Retornar DTO de resposta
+        return modelMapper.map(restauranteSalvo, RestauranteResponseDTO.class);
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public List<RestauranteResponseDTO> listarAtivos() {
-        return restauranteRepository.findByAtivoTrue()
-                .stream()
-                .map(r -> modelMapper.map(r, RestauranteResponseDTO.class))
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    @Transactional(readOnly = true)
     public RestauranteResponseDTO buscarPorId(Long id) {
+        // Buscar restaurante por ID
         Restaurante restaurante = restauranteRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Restaurante", id));
-
+                .orElseThrow(() -> new BusinessException("Restaurante não encontrado com ID: " + id));
+        // Converter entidade para DTO
         return modelMapper.map(restaurante, RestauranteResponseDTO.class);
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public List<RestauranteResponseDTO> buscarPorCategoria(String categoria) {
-        return restauranteRepository.findByCategoriaIgnoreCase(categoria)
-                .stream()
-                .map(r -> modelMapper.map(r, RestauranteResponseDTO.class))
-                .collect(Collectors.toList());
-    }
+    public RestauranteResponseDTO atualizar(Long id, RestauranteRequestDTO dto) {
+        // Buscar restaurante existente
+        Restaurante restauranteExistente = restauranteRepository.findById(id)
+                .orElseThrow(() -> new BusinessException("Restaurante não encontrado com ID: " + id));
 
-    @Override
-    public RestauranteResponseDTO atualizar(Long id, RestauranteRequestDTO requestDTO) {
-        Restaurante restaurante = restauranteRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Restaurante", id));
+        // Atualizar campos do restaurante
+        restauranteExistente.setNome(dto.getNome());
+        restauranteExistente.setCategoria(dto.getCategoria());
+        restauranteExistente.setTelefone(dto.getTelefone());
+        restauranteExistente.setAvaliacao(dto.getAvaliacao());
+        restauranteExistente.setEndereco(dto.getEndereco());
+        restauranteExistente.setTelefone(dto.getTelefone());
 
-        if (!restaurante.getNome().equals(requestDTO.getNome()) &&
-                restauranteRepository.existsByNome(requestDTO.getNome())) {
-            throw new BusinessException("Já existe um restaurante com este nome");
-        }
+        // Salvar as alterações
+        Restaurante restauranteAtualizado = restauranteRepository.save(restauranteExistente);
 
-        if (requestDTO.getTaxaEntrega() != null &&
-                requestDTO.getTaxaEntrega().compareTo(BigDecimal.ZERO) < 0) {
-            throw new BusinessException("Taxa de entrega deve ser maior ou igual a zero");
-        }
-
-        modelMapper.map(requestDTO, restaurante);
-        Restaurante atualizado = restauranteRepository.save(restaurante);
-        return modelMapper.map(atualizado, RestauranteResponseDTO.class);
+        // Retornar DTO atualizado
+        return modelMapper.map(restauranteAtualizado, RestauranteResponseDTO.class);
     }
 
     @Override
     public RestauranteResponseDTO ativarDesativar(Long id) {
+        // Buscar restaurante por ID
         Restaurante restaurante = restauranteRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Restaurante", id));
-
-        restaurante.setAtivo(!restaurante.isAtivo());
-
-        Restaurante atualizado = restauranteRepository.save(restaurante);
-        return modelMapper.map(atualizado, RestauranteResponseDTO.class);
+                .orElseThrow(() -> new BusinessException("Restaurante não encontrado com ID: " + id));
+        // Alternar status de ativo/desativado
+        restaurante.setAtivo(!restaurante.getAtivo());
+        // Salvar as alterações
+        Restaurante restauranteAtualizado = restauranteRepository.save(restaurante);
+        // Retornar DTO atualizado
+        return modelMapper.map(restauranteAtualizado, RestauranteResponseDTO.class);
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public List<RestauranteResponseDTO> buscarPorTaxaEntregaMenorOuIgual(BigDecimal taxa) {
-        List<Restaurante> restaurantes = restauranteRepository.findByTaxaEntregaLessThanEqual(taxa);
+    public RestauranteResponseDTO buscarPorNome(String nome) {
+        // Buscar restaurante por nome
+        Restaurante restaurante = restauranteRepository.findByNomeAndAtivoTrue(nome);
+        if (!restaurante.getNome().equalsIgnoreCase(nome)) {
+            throw new BusinessException("Restaurante não encontrado com nome: " + nome);
+        }
+        else if (!restaurante.getAtivo()) {
+            throw new BusinessException("Restaurante está desativado: " + nome);
+        }
+        // Converter entidade para DTO
+        return modelMapper.map(restaurante, RestauranteResponseDTO.class);
+    }
 
+    @Override
+    public List<RestauranteResponseDTO> buscarPorCategoria(String categoria) {
+        // Buscar restaurantes por categoria
+        List<Restaurante> restaurantes = restauranteRepository.findByCategoriaIgnoreCase(categoria);
         if (restaurantes.isEmpty()) {
-            throw new EntityNotFoundException("Nenhum restaurante encontrado com taxa de entrega menor ou igual a " + taxa);
+            throw new BusinessException("Nenhum restaurante encontrado na categoria: " + categoria);
         }
-
+        // Converter lista de entidades para lista de DTOs
         return restaurantes.stream()
-                .map(r -> modelMapper.map(r, RestauranteResponseDTO.class))
-                .collect(Collectors.toList());
+                .map(restaurante -> modelMapper.map(restaurante, RestauranteResponseDTO.class))
+                .toList();
     }
 
     @Override
-    @Transactional(readOnly = true)
+    public List<RestauranteResponseDTO> buscarPorPreco(BigDecimal precoMinimo, BigDecimal precoMaximo) {
+        // Buscar restaurantes por taxa de entrega dentro do intervalo
+        List<Restaurante> restaurantes = restauranteRepository.findByTaxaEntregaBetween(precoMinimo, precoMaximo);
+        if (restaurantes.isEmpty()) {
+            throw new BusinessException("Nenhum restaurante encontrado com taxa de entrega entre " + precoMinimo + " e " + precoMaximo);
+        }
+        // Converter lista de entidades para lista de DTOs
+        return restaurantes.stream()
+                .map(restaurante -> modelMapper.map(restaurante, RestauranteResponseDTO.class))
+                .toList();
+    }
+
+    @Override
+    public List<RestauranteResponseDTO> listarAtivos() {
+        // Buscar todos os restaurantes ativos
+        List<Restaurante> restaurantesAtivos = restauranteRepository.findByAtivoTrue();
+        if (restaurantesAtivos.isEmpty()) {
+            throw new BusinessException("Nenhum restaurante ativo encontrado.");
+        }
+        // Converter lista de entidades para lista de DTOs
+        return restaurantesAtivos.stream()
+                .map(restaurante -> modelMapper.map(restaurante, RestauranteResponseDTO.class))
+                .toList();
+    }
+
+    @Override
     public List<RestauranteResponseDTO> buscarTop5PorNomeAsc() {
-        List<Restaurante> top5 = restauranteRepository.findTop5ByOrderByNomeAsc();
-
-        if (top5.isEmpty()) {
-            throw new EntityNotFoundException("Nenhum restaurante encontrado para o ranking Top 5.");
+        // Buscar os 5 primeiros restaurantes por nome
+        List<Restaurante> top5Restaurantes = restauranteRepository.findTop5ByOrderByNomeAsc();
+        if (top5Restaurantes.isEmpty()) {
+            throw new BusinessException("Nenhum restaurante encontrado.");
         }
-
-        return top5.stream()
-                .map(r -> modelMapper.map(r, RestauranteResponseDTO.class))
-                .collect(Collectors.toList());
+        // Converter lista de entidades para lista de DTOs
+        return top5Restaurantes.stream()
+                .map(restaurante -> modelMapper.map(restaurante, RestauranteResponseDTO.class))
+                .toList();
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<RelatorioVendas> relatorioVendasPorRestaurante() {
-        return restauranteRepository.relatorioVendasPorRestaurante();
+        // Buscar relatório de vendas por restaurante
+        List<RelatorioVendas> relatorio = restauranteRepository.relatorioVendasPorRestaurante();
+        if (relatorio.isEmpty()) {
+            throw new BusinessException("Nenhum dado de vendas encontrado.");
+        }
+        // Converter lista de entidades para lista de DTOs
+        return relatorio.stream()
+                .map(restaurante -> modelMapper.map(restaurante, RelatorioVendas.class))
+                .toList();
     }
 
-
-    private void validarTaxaEntrega(RestauranteRequestDTO requestDTO) {
-        if (requestDTO.getTaxaEntrega() != null &&
-                requestDTO.getTaxaEntrega().compareTo(BigDecimal.ZERO) < 0) {
-            throw new BusinessException("Taxa de entrega deve ser maior ou igual a zero");
+    @Override
+    public List<RestauranteResponseDTO> buscarPorTaxaEntrega(BigDecimal taxaEntrega) {
+        // Buscar restaurantes por taxa de entrega
+        List<Restaurante> restaurantes = restauranteRepository.findByTaxaEntregaLessThanEqual(taxaEntrega);
+        if (restaurantes.isEmpty()) {
+            throw new BusinessException("Nenhum restaurante encontrado com taxa de entrega menor ou igual a: " + taxaEntrega);
         }
+        // Converter lista de entidades para lista de DTOs
+        return restaurantes.stream()
+                .map(restaurante -> modelMapper.map(restaurante, RestauranteResponseDTO.class))
+                .toList();
     }
 }

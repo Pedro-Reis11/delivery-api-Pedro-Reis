@@ -21,9 +21,13 @@ public interface RestauranteService {
 
     RestauranteResponseDTO ativarDesativar(Long id);
 
-    List<RestauranteResponseDTO> buscarPorTaxaEntregaMenorOuIgual(BigDecimal taxa);
+    List<RestauranteResponseDTO> buscarPorTaxaEntrega(BigDecimal taxa);
 
     List<RestauranteResponseDTO> buscarTop5PorNomeAsc();
 
     List<RelatorioVendas> relatorioVendasPorRestaurante();
+
+    RestauranteResponseDTO buscarPorNome(String nome);
+
+    List<RestauranteResponseDTO> buscarPorPreco(BigDecimal precoMinimo, BigDecimal precoMaximo);
 }

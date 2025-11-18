@@ -13,18 +13,20 @@ import java.util.List;
 @Repository
 public interface ProdutoRepository extends JpaRepository<Produto, Long> {
 
-    //Buscar produtos por restaurante
+    // buscar produto por restaurante ID
     List<Produto> findByRestauranteId(Long restauranteId);
 
-    //Buscar produtos por categoria
-    List<Produto> findByCategoriaIgnoreCase(String categoria);
+    // Apenas produtos disponíveis
+    List<Produto> findByDisponivelTrue();
 
-    //Buscar produtos por disponibilidade
-    List<Produto> findByRestauranteIdAndDisponivelTrue(Long restauranteId);
+    // Produtos por categoria
+    List<Produto> findByCategoria(String categoria);
 
+    // Por faixa de preço (menor ou igual)
     List<Produto> findByPrecoLessThanEqual(BigDecimal preco);
 
-    boolean existsByNomeAndRestaurante(String nome, Restaurante restaurante);
+    // Buscar produto por nome
+    Produto findByNome(String nome);
 
-    List<Produto> findByDisponivelTrue();
+    boolean existsByNomeAndRestaurante(String nome, Restaurante restaurante);
 }

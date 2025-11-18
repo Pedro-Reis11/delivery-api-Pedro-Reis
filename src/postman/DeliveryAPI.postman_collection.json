@@ -1,7 +1,7 @@
 {
   "info": {
-    "_postman_id": "d5d685fa-c312-4f41-bf9b-14b706cfe7cc",
-    "name": "DeliveryTech Entrga 2",
+    "_postman_id": "a5dd522e-3b80-4fc0-bd50-3661998f97c2",
+    "name": "DeliveryTech Entrga 3",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "33884958"
   },
@@ -10,65 +10,13 @@
       "name": "Cliente",
       "item": [
         {
-          "name": "Entrega2",
-          "item": [
-            {
-              "name": "BuscaPorNome",
-              "request": {
-                "method": "GET",
-                "header": [],
-                "url": {
-                  "raw": "http://localhost:8080/clientes/buscar?nome=João",
-                  "protocol": "http",
-                  "host": [
-                    "localhost"
-                  ],
-                  "port": "8080",
-                  "path": [
-                    "clientes",
-                    "buscar"
-                  ],
-                  "query": [
-                    {
-                      "key": "nome",
-                      "value": "João"
-                    }
-                  ]
-                }
-              },
-              "response": []
-            },
-            {
-              "name": "BuscaPorEmail",
-              "request": {
-                "method": "GET",
-                "header": [],
-                "url": {
-                  "raw": "http://localhost:8080/clientes/email/maria@email.com",
-                  "protocol": "http",
-                  "host": [
-                    "localhost"
-                  ],
-                  "port": "8080",
-                  "path": [
-                    "clientes",
-                    "email",
-                    "maria@email.com"
-                  ]
-                }
-              },
-              "response": []
-            }
-          ]
-        },
-        {
           "name": "http://localhost:8080/clientes",
           "request": {
             "method": "POST",
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"nome\": \"Cliente Novo\",\r\n    \"email\": \"joao.silva@example.com\",\r\n    \"telefone\": \"(31) 99999-9999\",\r\n    \"endereco\": \"Rua das Flores, 123 - Contagem, MG\",\r\n    \"dataCadastro\": \"2025-06-26T21:19:00\"\r\n}",
+              "raw": "{\r\n    \"nome\": \"João Novo\",\r\n    \"email\": \"joao.silva@example.com\",\r\n    \"telefone\": \"(31) 99999-9999\",\r\n    \"endereco\": \"Rua das Flores, 123 - Contagem, MG\",\r\n    \"dataCadastro\": \"2025-06-26T21:19:00\"\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -101,7 +49,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"id\": 1,\r\n    \"nome\": \"Cliente Atualizado\",\r\n    \"email\": \"atualizado@email.com\",\r\n    \"telefone\": \"(11) 99999-1111\",\r\n    \"endereco\": \"Rua Atualizada, 456\",\r\n    \"ativo\": true\r\n  }",
+              "raw": "{\r\n    \"nome\": \"João Atualizado\",\r\n    \"email\": \"atualizado@email.com\",\r\n    \"telefone\": \"(11) 99999-1111\",\r\n    \"endereco\": \"Rua Atualizada, 456\",\r\n    \"ativo\": true\r\n  }",
               "options": {
                 "raw": {
                   "language": "json"
@@ -109,7 +57,7 @@
               }
             },
             "url": {
-              "raw": "http://localhost:8080/clientes/1",
+              "raw": "http://localhost:8080/clientes/4",
               "protocol": "http",
               "host": [
                 "localhost"
@@ -117,7 +65,7 @@
               "port": "8080",
               "path": [
                 "clientes",
-                "1"
+                "4"
               ]
             },
             "description": "Generated from cURL: curl --request PUT \\\r\n  --url http://localhost:8080/clientes/1 \\\r\n  --header 'Content-Type: application/json' \\\r\n  --data '{\r\n    \"nome\": \"Cliente Atualizado\",\r\n    \"email\": \"atualizado@email.com\",\r\n    \"telefone\": \"(11) 99999-1111\",\r\n    \"endereco\": \"Rua Atualizada, 456\",\r\n    \"ativo\": true\r\n  }'\r\n"
@@ -125,12 +73,12 @@
           "response": []
         },
         {
-          "name": "http://localhost:8080/clientes/1",
+          "name": "Ativar e Desativar Cliente",
           "request": {
-            "method": "DELETE",
+            "method": "PATCH",
             "header": [],
             "url": {
-              "raw": "http://localhost:8080/clientes/2",
+              "raw": "http://localhost:8080/clientes/4/status",
               "protocol": "http",
               "host": [
                 "localhost"
@@ -138,7 +86,8 @@
               "port": "8080",
               "path": [
                 "clientes",
-                "2"
+                "4",
+                "status"
               ]
             },
             "description": "Generated from cURL: curl --request DELETE \\\r\n  --url http://localhost:8080/clientes/1"
@@ -185,79 +134,59 @@
             "description": "Generated from cURL: curl --request GET \\\r\n  --url http://localhost:8080/clientes/1"
           },
           "response": []
+        },
+        {
+          "name": "BuscaPorNome",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/clientes/buscar?nome=João",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "clientes",
+                "buscar"
+              ],
+              "query": [
+                {
+                  "key": "nome",
+                  "value": "João"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "BuscaPorEmail",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/clientes/email/maria@email.com",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "clientes",
+                "email",
+                "maria@email.com"
+              ]
+            }
+          },
+          "response": []
         }
       ]
     },
     {
       "name": "Produto",
       "item": [
-        {
-          "name": "Entrega2",
-          "item": [
-            {
-              "name": "Preço Menor ou Igual",
-              "request": {
-                "method": "GET",
-                "header": [],
-                "url": {
-                  "raw": "http://localhost:8080/produtos/preco/20.00",
-                  "protocol": "http",
-                  "host": [
-                    "localhost"
-                  ],
-                  "port": "8080",
-                  "path": [
-                    "produtos",
-                    "preco",
-                    "20.00"
-                  ]
-                }
-              },
-              "response": []
-            },
-            {
-              "name": "Produtos por categoria",
-              "request": {
-                "method": "GET",
-                "header": [],
-                "url": {
-                  "raw": "http://localhost:8080/produtos/categoria/Lanches",
-                  "protocol": "http",
-                  "host": [
-                    "localhost"
-                  ],
-                  "port": "8080",
-                  "path": [
-                    "produtos",
-                    "categoria",
-                    "Lanches"
-                  ]
-                }
-              },
-              "response": []
-            },
-            {
-              "name": "Produtos disponiveis",
-              "request": {
-                "method": "GET",
-                "header": [],
-                "url": {
-                  "raw": "http://localhost:8080/produtos/disponiveis",
-                  "protocol": "http",
-                  "host": [
-                    "localhost"
-                  ],
-                  "port": "8080",
-                  "path": [
-                    "produtos",
-                    "disponiveis"
-                  ]
-                }
-              },
-              "response": []
-            }
-          ]
-        },
         {
           "name": "http://localhost:8080/produtos",
           "request": {
@@ -270,7 +199,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"nome\": \"Produto\",\n    \"descricao\": \"Descrição do produto\",\n    \"preco\": 19.99,\n    \"categoria\": \"Bebidas\",\n    \"disponivel\": true,\n    \"restauranteId\": 1\n}",
+              "raw": "{\n    \"nome\": \"Produto 12\",\n    \"descricao\": \"Descrição do produto\",\n    \"preco\": 19.99,\n    \"categoria\": \"Bebidas\",\n    \"disponivel\": true,\n    \"restauranteId\": 1\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -303,7 +232,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"nome\": \"Produto Atualizado\",\n    \"descricao\": \"Nova descrição\",\n    \"preco\": 29.99,\n    \"categoria\": \"Lanches\",\n    \"disponivel\": false,\n    \"restaurante\": { \"id\": 1 }\n  }",
+              "raw": "{\n    \"nome\": \"Produto Atualizado\",\n    \"descricao\": \"Nova descrição\",\n    \"preco\": 29.99,\n    \"categoria\": \"Lanches\",\n    \"disponivel\": true,\n    \"restauranteId\": 1\n  }",
               "options": {
                 "raw": {
                   "language": "json"
@@ -311,7 +240,7 @@
               }
             },
             "url": {
-              "raw": "http://localhost:8080/produtos/10",
+              "raw": "http://localhost:8080/produtos/11",
               "protocol": "http",
               "host": [
                 "localhost"
@@ -319,7 +248,7 @@
               "port": "8080",
               "path": [
                 "produtos",
-                "10"
+                "11"
               ]
             }
           },
@@ -409,6 +338,68 @@
             }
           },
           "response": []
+        },
+        {
+          "name": "Preço Menor ou Igual",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/produtos/preco/20.00",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "produtos",
+                "preco",
+                "20.00"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Produtos por categoria",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/produtos/categoria/Temaki",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "produtos",
+                "categoria",
+                "Temaki"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Produtos disponiveis",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/produtos/disponiveis",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "produtos",
+                "disponiveis"
+              ]
+            }
+          },
+          "response": []
         }
       ]
     },
@@ -416,111 +407,13 @@
       "name": "Pedido",
       "item": [
         {
-          "name": "Entrega2",
-          "item": [
-            {
-              "name": "Pedidos por cliente",
-              "request": {
-                "method": "GET",
-                "header": [],
-                "url": {
-                  "raw": "http://localhost:8080/pedidos/cliente/1/todos",
-                  "protocol": "http",
-                  "host": [
-                    "localhost"
-                  ],
-                  "port": "8080",
-                  "path": [
-                    "pedidos",
-                    "cliente",
-                    "1",
-                    "todos"
-                  ]
-                }
-              },
-              "response": []
-            },
-            {
-              "name": "Pedidos Por Status",
-              "request": {
-                "method": "GET",
-                "header": [],
-                "url": {
-                  "raw": "http://localhost:8080/pedidos/status/PENDENTE",
-                  "protocol": "http",
-                  "host": [
-                    "localhost"
-                  ],
-                  "port": "8080",
-                  "path": [
-                    "pedidos",
-                    "status",
-                    "PENDENTE"
-                  ]
-                }
-              },
-              "response": []
-            },
-            {
-              "name": "Pedidos Recentes",
-              "request": {
-                "method": "GET",
-                "header": [],
-                "url": {
-                  "raw": "http://localhost:8080/pedidos/recentes",
-                  "protocol": "http",
-                  "host": [
-                    "localhost"
-                  ],
-                  "port": "8080",
-                  "path": [
-                    "pedidos",
-                    "recentes"
-                  ]
-                }
-              },
-              "response": []
-            },
-            {
-              "name": "Pedidos por periodo",
-              "request": {
-                "method": "GET",
-                "header": [],
-                "url": {
-                  "raw": "http://localhost:8080/pedidos/periodo?inicio=2024-06-25T00:00:00&fim=2024-07-02T23:59:59",
-                  "protocol": "http",
-                  "host": [
-                    "localhost"
-                  ],
-                  "port": "8080",
-                  "path": [
-                    "pedidos",
-                    "periodo"
-                  ],
-                  "query": [
-                    {
-                      "key": "inicio",
-                      "value": "2024-06-25T00:00:00"
-                    },
-                    {
-                      "key": "fim",
-                      "value": "2024-07-02T23:59:59"
-                    }
-                  ]
-                }
-              },
-              "response": []
-            }
-          ]
-        },
-        {
           "name": "http://localhost:8080/pedidos",
           "request": {
             "method": "POST",
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"numeroPedido\": \"0002\",\r\n    \"dataPedido\": \"2025-06-26T21:19:00\",\r\n    \"valorTotal\": 10.0,\r\n    \"observacoes\": \"true\",\r\n    \"clienteId\": 1,\r\n    \"restauranteId\": 1,\r\n    \"itens\": \"X-Burger, Batata Frita\"\r\n}",
+              "raw": "{\r\n    \"numeroPedido\": \"PED02355\",\r\n    \"dataPedido\": \"2025-07-04T11:19:00\",\r\n    \"valorTotal\": 0.0,\r\n    \"observacoes\": \"sem cebola\",\r\n    \"clienteId\": 1,\r\n    \"restauranteId\": 1,\r\n    \"enderecoEntrega\": \"Rua B, 456\",\r\n    \"itens\": [\r\n        {\r\n            \"produtoId\": 1,\r\n            \"quantidade\": 2\r\n        },\r\n        {\r\n            \"produtoId\": 2,\r\n            \"quantidade\": 1\r\n        }\r\n    ]\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -568,7 +461,7 @@
             "method": "PUT",
             "header": [],
             "url": {
-              "raw": "http://localhost:8080/pedidos/1/CONFIRMADO",
+              "raw": "http://localhost:8080/pedidos/9/ENTREGUE",
               "protocol": "http",
               "host": [
                 "localhost"
@@ -576,8 +469,101 @@
               "port": "8080",
               "path": [
                 "pedidos",
+                "9",
+                "ENTREGUE"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Pedidos por cliente",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/pedidos/cliente/1/todos",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "pedidos",
+                "cliente",
                 "1",
-                "CONFIRMADO"
+                "todos"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Pedidos Por Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/pedidos/status/PENDENTE",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "pedidos",
+                "status",
+                "PENDENTE"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Pedidos Recentes",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/pedidos/recentes",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "pedidos",
+                "recentes"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Pedidos por periodo",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/pedidos/periodo?inicio=2024-06-25T00:00:00&fim=2024-07-02T23:59:59",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "pedidos",
+                "periodo"
+              ],
+              "query": [
+                {
+                  "key": "inicio",
+                  "value": "2024-06-25T00:00:00"
+                },
+                {
+                  "key": "fim",
+                  "value": "2024-07-02T23:59:59"
+                }
               ]
             }
           },
@@ -588,77 +574,6 @@
     {
       "name": "Restaurante",
       "item": [
-        {
-          "name": "Entrega2",
-          "item": [
-            {
-              "name": "Taxa menor ou igual a 5",
-              "request": {
-                "method": "GET",
-                "header": [],
-                "url": {
-                  "raw": "http://localhost:8080/restaurantes/taxa-entrega?taxa=5.00",
-                  "protocol": "http",
-                  "host": [
-                    "localhost"
-                  ],
-                  "port": "8080",
-                  "path": [
-                    "restaurantes",
-                    "taxa-entrega"
-                  ],
-                  "query": [
-                    {
-                      "key": "taxa",
-                      "value": "5.00"
-                    }
-                  ]
-                }
-              },
-              "response": []
-            },
-            {
-              "name": "Top 5",
-              "request": {
-                "method": "GET",
-                "header": [],
-                "url": {
-                  "raw": "http://localhost:8080/restaurantes/top-cinco",
-                  "protocol": "http",
-                  "host": [
-                    "localhost"
-                  ],
-                  "port": "8080",
-                  "path": [
-                    "restaurantes",
-                    "top-cinco"
-                  ]
-                }
-              },
-              "response": []
-            },
-            {
-              "name": "Relatiorio Vendas",
-              "request": {
-                "method": "GET",
-                "header": [],
-                "url": {
-                  "raw": "http://localhost:8080/restaurantes/relatorio-vendas",
-                  "protocol": "http",
-                  "host": [
-                    "localhost"
-                  ],
-                  "port": "8080",
-                  "path": [
-                    "restaurantes",
-                    "relatorio-vendas"
-                  ]
-                }
-              },
-              "response": []
-            }
-          ]
-        },
         {
           "name": "http://localhost:8080/restaurantes",
           "request": {
@@ -671,7 +586,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"nome\": \"Exemplo dois\",\n    \"categoria\": \"Japonês\",\n    \"endereco\": \"Rua das Flores, 100\",\n    \"telefone\": \"(11) 99999-8888\",\n    \"taxa_entrega\": 5.00,\n    \"avaliacao\": 4.5,\n    \"ativo\": true\n  }",
+              "raw": "{\n    \"nome\": \"Exemplo dois\",\n    \"categoria\": \"Japonês\",\n    \"endereco\": \"Rua das Flores, 100\",\n    \"telefone\": \"+5511999998888\",\n    \"taxaEntrega\": 5.00,\n    \"avaliacao\": 4.5,\n    \"ativo\": true\n  }",
               "options": {
                 "raw": {
                   "language": "json"
@@ -704,7 +619,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"nome\": \"Restaurante Atualizado\",\n    \"categoria\": \"Japonesa\",\n    \"endereco\": \"Rua Nova, 200\",\n    \"telefone\": \"(11) 98888-7777\",\n    \"taxa_entrega\": 7.50,\n    \"avaliacao\": 4.8,\n    \"ativo\": true\n  }",
+              "raw": "{\n    \"nome\": \"Restaurante Atualizado\",\n    \"categoria\": \"Japonesa\",\n    \"endereco\": \"Rua Nova, 200\",\n    \"telefone\": \"+5511988887777\",\n    \"taxaEntrega\": 7.50,\n    \"avaliacao\": 4.8,\n    \"ativo\": true\n  }",
               "options": {
                 "raw": {
                   "language": "json"
@@ -729,7 +644,7 @@
         {
           "name": "http://localhost:8080/restaurantes/1",
           "request": {
-            "method": "PUT",
+            "method": "PATCH",
             "header": [],
             "url": {
               "raw": "http://localhost:8080/restaurantes/4/inativar",
@@ -802,6 +717,72 @@
                 "restaurantes",
                 "categoria",
                 "Italiana"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Taxa menor ou igual a 5",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/restaurantes/taxa-entrega?taxa=5.00",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "restaurantes",
+                "taxa-entrega"
+              ],
+              "query": [
+                {
+                  "key": "taxa",
+                  "value": "5.00"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Top 5",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/restaurantes/top-cinco",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "restaurantes",
+                "top-cinco"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Relatiorio Vendas",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/restaurantes/relatorio-vendas",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "restaurantes",
+                "relatorio-vendas"
               ]
             }
           },

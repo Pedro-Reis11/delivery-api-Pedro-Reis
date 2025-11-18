@@ -29,11 +29,14 @@ public class Produto {
 
     private String categoria;  // Campo adicionado
 
-    private boolean disponivel = true;
+    private Boolean disponivel = true;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "restaurante_id")
     @JsonIgnoreProperties({"produtos", "hibernateLazyInitializer", "handler"})
     private Restaurante restaurante;
 
+    public boolean isAtivo() {
+        return this.disponivel != null && this.disponivel;
+    }
 }

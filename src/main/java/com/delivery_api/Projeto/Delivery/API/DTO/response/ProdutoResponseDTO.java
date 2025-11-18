@@ -26,7 +26,7 @@ public class ProdutoResponseDTO {
         this.descricao = save.getDescricao();
         this.preco = save.getPreco();
         this.categoria = save.getCategoria();
-        this.disponivel = save.isDisponivel();
+        this.disponivel = save.getDisponivel();
         this.restauranteNome = save.getRestaurante().getNome();
         this.restauranteId = save.getRestaurante().getId();
     }

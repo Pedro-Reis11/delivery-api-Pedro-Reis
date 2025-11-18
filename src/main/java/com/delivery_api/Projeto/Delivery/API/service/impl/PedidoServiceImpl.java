@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
@@ -42,14 +43,14 @@ public class PedidoServiceImpl implements PedidoService {
     @Override
     public PedidoResponseDTO criar(PedidoRequestDTO requestDTO) {
         Cliente cliente = clienteRepository.findById(requestDTO.getClienteId())
-                .orElseThrow(() -> new EntityNotFoundException("Cliente", requestDTO.getClienteId()));
+                .orElseThrow(() -> new EntityNotFoundException("Cliente não encontrado", requestDTO.getClienteId()));
 
         if (!cliente.getAtivo()) {
             throw new BusinessException("Cliente está inativo");
         }
 
         Restaurante restaurante = restauranteRepository.findById(requestDTO.getRestauranteId())
-                .orElseThrow(() -> new EntityNotFoundException("Restaurante", requestDTO.getRestauranteId()));
+                .orElseThrow(() -> new EntityNotFoundException("Restaurante não encontrado", requestDTO.getRestauranteId()));
 
         if (!restaurante.isAtivo()) {
             throw new BusinessException("Restaurante está inativo");
@@ -83,7 +84,7 @@ public class PedidoServiceImpl implements PedidoService {
             Produto produto = produtoRepository.findById(itemRequest.getProdutoId())
                     .orElseThrow(() -> new EntityNotFoundException("Produto", itemRequest.getProdutoId()));
 
-            if (!produto.isDisponivel()) {
+            if (!produto.getDisponivel()) {
                 throw new BusinessException("Produto indisponível: " + produto.getNome());
             }
 
@@ -132,10 +133,14 @@ public class PedidoServiceImpl implements PedidoService {
     @Override
     @Transactional(readOnly = true)
     public List<PedidoResponseDTO> listarPorCliente(Long clienteId) {
-        return pedidoRepository.findByClienteId(clienteId)
-                .stream()
-                .map(p -> modelMapper.map(p, PedidoResponseDTO.class))
-                .collect(Collectors.toList());
+        List<Pedido> pedidos = pedidoRepository.findByClienteId(clienteId);
+        if (pedidos.isEmpty()) {
+            throw new EntityNotFoundException("Nenhum pedido encontrado para o cliente com ID: " + clienteId);
+        }
+        // Converter lista de entidades para lista de DTOs
+        return pedidos.stream()
+                .map(pedido -> modelMapper.map(pedido, PedidoResponseDTO.class))
+                .toList();
     }
 
     @Override
@@ -150,7 +155,7 @@ public class PedidoServiceImpl implements PedidoService {
     @Override
     public PedidoResponseDTO alterarStatus(Long id, PedidoStatus novoStatus) {
         Pedido pedido = pedidoRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Pedido", id));
+                .orElseThrow(() -> new EntityNotFoundException("Pedido não encontrado", id));
 
         validarMudancaStatus(pedido.getStatus(), novoStatus);
         pedido.alterarStatus(novoStatus);
@@ -233,12 +238,55 @@ public class PedidoServiceImpl implements PedidoService {
                 .collect(Collectors.toList());
     }
 
+    public PedidoResponseDTO cancelarPedido(Long id) {
+        // Buscar pedido por ID
+        Pedido pedido = pedidoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Pedido não encontrado com ID: " + id));
+        // Verificar se o pedido já está cancelado
+        if (pedido.getStatus().equals(PedidoStatus.CANCELADO.name())) {
+            throw new RuntimeException("Pedido já está cancelado: " + id);
+        }
+        // Atualizar status do pedido para CANCELADO
+        podeSerCancelado(PedidoStatus.valueOf(String.valueOf(pedido.getStatus())));
+        if (!podeSerCancelado(PedidoStatus.valueOf(String.valueOf(pedido.getStatus())))) {
+            throw new BusinessException("Pedido não pode ser cancelado, status atual: " + pedido.getStatus());
+        }
+        pedido.setStatus(PedidoStatus.valueOf(PedidoStatus.CANCELADO.name()));
+        // Salvar pedido atualizado
+        pedidoRepository.save(pedido);
+        // Converter entidade para DTO
+        return modelMapper.map(pedido, PedidoResponseDTO.class);
+    }
+
+    private boolean isTransicaoValida(PedidoStatus statusAtual, PedidoStatus novoStatus) {
+        // Implementar lógica de transições válidas
+        switch (statusAtual) {
+            case PENDENTE:
+                return novoStatus == PedidoStatus.CONFIRMADO || novoStatus == PedidoStatus.CANCELADO;
+            case CONFIRMADO:
+                return novoStatus == PedidoStatus.PREPARANDO || novoStatus == PedidoStatus.CANCELADO;
+            case PREPARANDO:
+                return novoStatus == PedidoStatus.SAIU_PARA_ENTREGA;
+            case SAIU_PARA_ENTREGA:
+                return novoStatus == PedidoStatus.ENTREGUE;
+            default:
+                return false;
+        }
+    }
+
+    private boolean podeSerCancelado(PedidoStatus status) {
+        return status == PedidoStatus.PENDENTE || status == PedidoStatus.CONFIRMADO;
+    }
+
     @Override
-    @Transactional(readOnly = true)
-    public List<PedidoResponseDTO> buscarPorCliente(Long clienteId) {
-        return pedidoRepository.findByClienteIdOrderByDataPedidoDesc(clienteId)
-                .stream()
-                .map(pedido -> modelMapper.map(pedido, PedidoResponseDTO.class))
-                .collect(Collectors.toList());
+    public BigDecimal calcularValorTotalPedido(List<ItemPedidoRequestDTO> itens) {
+        // Calcular o valor total do pedido somando os preços dos itens
+        BigDecimal valorTotal = BigDecimal.ZERO;
+        for (ItemPedidoRequestDTO item : itens) {
+            Produto produto = produtoRepository.findById(item.getProdutoId())
+                    .orElseThrow(() -> new RuntimeException("Produto não encontrado com ID: " + item.getProdutoId()));
+            valorTotal = valorTotal.add(produto.getPreco().multiply(BigDecimal.valueOf(item.getQuantidade())));
+        }
+        return valorTotal;
     }
 }

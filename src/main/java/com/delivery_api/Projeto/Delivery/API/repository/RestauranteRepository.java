@@ -9,9 +9,16 @@ import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface RestauranteRepository extends JpaRepository<Restaurante, Long> {
+
+    // Buscar por nome
+    Optional<Restaurante> findByNome(String nome);
+
+    //buscar por nome e ativo
+    Restaurante findByNomeAndAtivoTrue(String nome);
 
     // Buscar restaurante por categoria
     List<Restaurante> findByCategoriaIgnoreCase (String categoria);
@@ -22,6 +29,8 @@ public interface RestauranteRepository extends JpaRepository<Restaurante, Long> 
     List<Restaurante> findByTaxaEntregaLessThanEqual(BigDecimal taxa);
 
     List<Restaurante> findTop5ByOrderByNomeAsc();
+
+    List<Restaurante> findByTaxaEntregaBetween(BigDecimal precoMinimo, BigDecimal precoMaximo);
 
     boolean existsByNome(String nome);
 
