@@ -24,13 +24,28 @@
 
 ---
 
-## 🏃‍♂️ Como Executar o Projeto
+## 🏃‍♂️ Como executar
+- Pré-requisitos: JDK 21 instalado
+- Clone o repositório
+- Execute: ./mvnw spring-boot:run
+- Acesse: http://localhost:8080/health
 
-### 📋 Pré-requisitos
-- JDK 21 instalado
+---
 
+## 📋 Endpoints
+- GET /health - Status da aplicação (inclui versão Java)
+- GET /info - Informações da aplicação
+- GET /h2-console - Console do banco H2
 
+---
 
-👨‍💻 Desenvolvedor
-Pedro Verissimo Rocha Reis — Una Aimorés
-💻 Desenvolvido com JDK 21 e Spring Boot 3.2.x
+## 🔧 Configuração
+- Porta: 8080
+- Banco: H2 em memória
+- Profile: development
+
+---
+
+## 👨‍💻 Desenvolvedor
+- Pedro Verissimo Rocha Reis — Una Aimorés
+- 💻 Desenvolvido com JDK 21 e Spring Boot 3.2.x
