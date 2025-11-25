@@ -1,0 +1,3 @@
+podman network create appnet
+
+podman run -d -p 3306:3306  --name delivery2_db --network appnet  -e MYSQL_ROOT_PASSWORD=123456789 -e MYSQL_ROOT_HOST='%' -e MYSQL_DATABASE=delivery2_db -v mysql_data:/var/lib/mysql mysql:8

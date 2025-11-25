@@ -1,0 +1,5 @@
+#abrir um power shell e executar os comandos
+
+podman pull mysql:8
+
+podman run -d -p 3306:3306  --name delivery_db -e MYSQL_ROOT_PASSWORD=123456789 -e MYSQL_ROOT_HOST='%' -e MYSQL_DATABASE=delivery_db -v mysql_data:/var/lib/mysql mysql:8

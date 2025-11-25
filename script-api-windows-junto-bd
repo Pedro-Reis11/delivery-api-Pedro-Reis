@@ -1,0 +1,7 @@
+podman run -d --name delivery-api-Pedro-Reis `
+  --network appnet `
+  -p 8080:8080 `
+  -e SPRING_DATASOURCE_URL="jdbc:mysql://delivery2_db:3306/delivery2_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC" `
+  -e SPRING_DATASOURCE_USERNAME="root" `
+  -e SPRING_DATASOURCE_PASSWORD="123456789" `
+  localhost/delivery-api:latest
