@@ -36,6 +36,62 @@
 - GET /health - Status da aplicação (inclui versão Java)
 - GET /info - Informações da aplicação
 - GET /h2-console - Console do banco H2
+- Testando endpoints públicos
+
+Rotas configuradas como públicas:
+
+POST /auth/login
+POST /auth/register
+POST /clientes
+GET /swagger-ui/
+GET /v3/api-docs/
+GET /clientes/buscar/{nome}
+
+Essas você pode usar no Swagger direto, clicando:
+
+➡ Try it out
+➡ Preencher corpo (JSON)
+➡ Execute
+
+Testando endpoints protegidos com JWT
+
+Passo 1 — fazer login
+
+Vá até /auth/login.
+
+Clique Try it out
+
+Envie JSON:
+
+{
+  "email": "admin@teste.com",
+  "senha": "123456"
+}
+
+
+Ele vai retornar:
+
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5..."
+}
+
+Passo 2 — Enviar o token ao Swagger (Authorization)
+
+No topo direito da interface do Swagger existe um botão:
+
+👉 Authorize
+
+Clique nele e cole:
+
+Bearer seu_token_aqui
+
+
+⚠ Não esqueça do Bearer + espaço.
+
+Depois disso:
+
+✔ Todas as rotas autenticadas passam a funcionar
+✔ Não precisa enviar token manualmente por header
 
 ---
 
