@@ -38,30 +38,34 @@
 - GET /h2-console - Console do banco H2
 - Testando endpoints públicos
 
-Rotas configuradas como públicas:
+---
 
-POST /auth/login
-POST /auth/register
-POST /clientes
-GET /swagger-ui/
-GET /v3/api-docs/
-GET /clientes/buscar/{nome}
+## Rotas configuradas como públicas:
 
-Essas você pode usar no Swagger direto, clicando:
+- POST /auth/login
+- POST /auth/register
+- POST /clientes
+- GET /swagger-ui/
+- GET /v3/api-docs/
+- GET /clientes/buscar/{nome}
 
-➡ Try it out
-➡ Preencher corpo (JSON)
-➡ Execute
+- Essas você pode usar no Swagger direto, clicando:
 
-Testando endpoints protegidos com JWT
+- ➡ Try it out
+- ➡ Preencher corpo (JSON)
+- ➡ Execute
 
-Passo 1 — fazer login
+---
 
-Vá até /auth/login.
+## Testando endpoints protegidos com JWT
 
-Clique Try it out
+- Passo 1 — fazer login
 
-Envie JSON:
+- Vá até /auth/login.
+
+- Clique Try it out
+
+- Envie JSON:
 
 {
   "email": "admin@teste.com",
@@ -69,29 +73,29 @@ Envie JSON:
 }
 
 
-Ele vai retornar:
+- Ele vai retornar:
 
 {
   "token": "eyJhbGciOiJIUzI1NiIsInR5..."
 }
 
-Passo 2 — Enviar o token ao Swagger (Authorization)
+- Passo 2 — Enviar o token ao Swagger (Authorization)
 
-No topo direito da interface do Swagger existe um botão:
+- No topo direito da interface do Swagger existe um botão:
 
-👉 Authorize
+- 👉 Authorize
 
-Clique nele e cole:
+- Clique nele e cole:
 
-Bearer seu_token_aqui
+- Bearer seu_token_aqui
 
 
-⚠ Não esqueça do Bearer + espaço.
+- ⚠ Não esqueça do Bearer + espaço.
 
-Depois disso:
+- Depois disso:
 
-✔ Todas as rotas autenticadas passam a funcionar
-✔ Não precisa enviar token manualmente por header
+- ✔ Todas as rotas autenticadas passam a funcionar
+- ✔ Não precisa enviar token manualmente por header
 
 ---
 
